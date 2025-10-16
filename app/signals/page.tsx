@@ -266,7 +266,11 @@ export default function SignalsPage() {
                       Current Plan
                     </div>
                     <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                      {subscriptionStatus === "active" ? currentPlan?.charAt(0).toUpperCase() + currentPlan?.slice(1).toLowerCase() || "Premium" : "Basic"}
+                      {subscriptionStatus === "active" 
+                        ? currentPlan 
+                          ? currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1).toLowerCase()
+                          : "Premium"
+                        : "Basic"}
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                       {subscriptionStatus === "active" ? "Active Subscription" : "Free Plan"}
