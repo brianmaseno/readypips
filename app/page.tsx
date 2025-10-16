@@ -44,8 +44,24 @@ export default function HomePage() {
       </div>
 
       {/* Hero Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto text-center">
+      <section className="relative py-20 px-4 overflow-hidden">
+        {/* Background Video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/trading.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        {/* Overlay for text readability */}
+        <div className="absolute inset-0 bg-black/60"></div>
+
+        {/* Content */}
+        <div className="container mx-auto text-center relative z-10">
           <Badge
             className="mb-6 bg-green-100 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-200 dark:border-green-800"
             variant="outline"
@@ -53,10 +69,10 @@ export default function HomePage() {
             <Zap className="w-3 h-3 mr-1" />
             AI-Powered Trading Signals
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-black dark:text-white leading-tight">
-            Ready <span className="text-green-600">Pips</span>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white leading-tight">
+            Ready <span className="text-green-400">Pips</span>
           </h1>
-          <p className="text-xl text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-100 mb-8 max-w-2xl mx-auto leading-relaxed">
             Get real-time, AI-powered trading signals with up to 93% accuracy.
             Join thousands of successful traders using our proprietary
             algorithm.
@@ -93,7 +109,7 @@ export default function HomePage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-green-600 text-green-600 dark:border-green-400 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 font-semibold"
+                className="border-green-400 text-green-400 hover:bg-green-600 hover:text-white font-semibold"
               >
                 Copy Trading
                 <ArrowRight className="ml-2 w-4 h-4" />
@@ -104,26 +120,26 @@ export default function HomePage() {
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">93%</div>
-              <div className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+              <div className="text-3xl font-bold text-green-400">93%</div>
+              <div className="text-sm text-gray-100 font-medium">
                 Win Rate
               </div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">50K+</div>
-              <div className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+              <div className="text-3xl font-bold text-green-400">50K+</div>
+              <div className="text-sm text-gray-100 font-medium">
                 Active Users
               </div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">$2.1M</div>
-              <div className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+              <div className="text-3xl font-bold text-green-400">$2.1M</div>
+              <div className="text-sm text-gray-100 font-medium">
                 Avg. Monthly Profit
               </div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">24/7</div>
-              <div className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+              <div className="text-3xl font-bold text-green-400">24/7</div>
+              <div className="text-sm text-gray-100 font-medium">
                 Market Coverage
               </div>
             </div>
@@ -131,14 +147,26 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-20 px-4 bg-gray-50 dark:bg-gray-900">
-        <div className="container mx-auto">
+      {/* Features Section - with sl_022321_41020_35.jpg background */}
+      <section
+        id="features"
+        className="py-20 px-4 bg-gray-50 dark:bg-gray-900 relative overflow-hidden"
+        style={{
+          backgroundImage: "url('/sl_022321_41020_35.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+        }}
+      >
+        {/* Dark overlay for readability */}
+        <div className="absolute inset-0 bg-black/40"></div>
+
+        <div className="container mx-auto relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-black dark:text-white">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-lg">
               Why Choose Ready Pips?
             </h2>
-            <p className="text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-100 max-w-2xl mx-auto drop-shadow-md">
               Advanced technology meets professional trading expertise
             </p>
           </div>
@@ -328,14 +356,25 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto">
+      {/* Pricing Section - with trading2.jpg background */}
+      <section
+        className="py-20 px-4 relative overflow-hidden"
+        style={{
+          backgroundImage: "url('/trading2.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+        }}
+      >
+        {/* Dark overlay for readability */}
+        <div className="absolute inset-0 bg-black/40"></div>
+
+        <div className="container mx-auto relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-black dark:text-white">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-lg">
               Choose Your Plan
             </h2>
-            <p className="text-xl text-gray-700 dark:text-gray-300">
+            <p className="text-xl text-gray-100 drop-shadow-md">
               Start with a free trial, upgrade anytime
             </p>
           </div>
@@ -344,13 +383,24 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-4 bg-green-600">
-        <div className="container mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
+      {/* CTA Section - with trading3.jpg background */}
+      <section
+        className="py-20 px-4 relative overflow-hidden"
+        style={{
+          backgroundImage: "url('/trading3.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+        }}
+      >
+        {/* Dark overlay for readability */}
+        <div className="absolute inset-0 bg-black/60"></div>
+
+        <div className="container mx-auto text-center relative z-10">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-lg">
             Ready to Start Trading?
           </h2>
-          <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-100 mb-8 max-w-2xl mx-auto drop-shadow-md">
             Join thousands of successful traders and start making consistent
             profits today.
           </p>

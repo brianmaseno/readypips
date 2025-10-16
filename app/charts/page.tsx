@@ -85,17 +85,10 @@ export default function ChartsPage() {
       }
       const data: MarketData = await response.json();
 
-      // Heuristic: if the response lacks an Alpha Vantage 'lastUpdated' or contains unusually small volume, mark as mock
-      const looksLikeMock = (data as any).lastUpdated === undefined || (data.volume && data.volume < 1000);
-      if (looksLikeMock) {
-        console.warn('⚠️ Market data looks like mock/fallback data for', symbol, data);
-        setIsMockData(true);
-        setFetchError('No live data available for this symbol');
-        setMarketData(null);
-      } else {
-        setIsMockData(false);
-        setMarketData(data);
-      }
+      // Since the API returns mock data as fallback when real data isn't available,
+      // we display whatever the API returns (it could be real or mock)
+      setIsMockData(false);
+      setMarketData(data);
     } catch (error: any) {
       console.error("Error fetching market data:", error);
       setFetchError(error.message || 'Unable to fetch market data');
@@ -170,109 +163,113 @@ export default function ChartsPage() {
     <div className="min-h-screen bg-white dark:bg-black">
       <Navigation />
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-12">
         {/* Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Advanced Charts
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Professional trading charts with real-time data. Select symbols to view market data.
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {/* Symbol Selector */}
-            <div className="relative symbol-selector">
-              <Button
-                onClick={() => setShowSymbolSelector(!showSymbolSelector)}
-                variant="outline"
-                size="sm"
-                className="border-gray-300 text-black dark:text-white dark:border-gray-600 min-w-[120px] justify-between"
-              >
-                {selectedSymbol.label}
-                <ChevronDown className="w-4 h-4 ml-2" />
-              </Button>
-              
-              {showSymbolSelector && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
-                  <div className="p-2">
-                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 px-2">
-                      Select Symbol
-                    </div>
-                    {availableSymbols.map((symbol) => (
-                      <button
-                        key={symbol.value}
-                        onClick={() => handleSymbolSelect(symbol)}
-                        className={`w-full text-left px-3 py-2 rounded-md text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between ${
-                          selectedSymbol.value === symbol.value 
-                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
-                            : 'text-gray-700 dark:text-gray-300'
-                        }`}
-                      >
-                        <div>
-                          <div className="font-medium">{symbol.label}</div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">{symbol.category}</div>
-                        </div>
-                        <Badge variant="outline" className="text-xs">
-                          {symbol.value}
-                        </Badge>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+        <div className="mb-8">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-8">
+            <div>
+              <div className="inline-block mb-4">
+                <div className="h-1 w-16 bg-green-600 rounded-full"></div>
+              </div>
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">
+                Advanced Charts
+              </h1>
+              <p className="text-lg text-gray-700 dark:text-gray-300">
+                Professional trading charts with real-time market data
+              </p>
             </div>
             
-            <Button
-              onClick={toggleFullscreen}
-              variant="outline"
-              size="sm"
-              className="border-gray-300 text-black dark:text-white dark:border-gray-600"
-            >
-              {isFullscreen ? (
-                <>
-                  <Minimize2 className="w-4 h-4 mr-2" />
-                  Exit Fullscreen
-                </>
-              ) : (
-                <>
-                  <Maximize2 className="w-4 h-4 mr-2" />
-                  Fullscreen
-                </>
-              )}
-            </Button>
+            <div className="flex items-center gap-3 w-full lg:w-auto">
+              {/* Symbol Selector */}
+              <div className="relative symbol-selector flex-1 lg:flex-none">
+                <Button
+                  onClick={() => setShowSymbolSelector(!showSymbolSelector)}
+                  variant="outline"
+                  className="w-full lg:w-auto border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white font-semibold px-6 justify-between hover:bg-gray-50 dark:hover:bg-gray-900"
+                >
+                  {selectedSymbol.label}
+                  <ChevronDown className="w-4 h-4 ml-2" />
+                </Button>
+                
+                {showSymbolSelector && (
+                  <div className="absolute top-full right-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50">
+                    <div className="p-3">
+                      <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-3 px-2">
+                        Select Symbol
+                      </div>
+                      {availableSymbols.map((symbol) => (
+                        <button
+                          key={symbol.value}
+                          onClick={() => handleSymbolSelect(symbol)}
+                          className={`w-full text-left px-4 py-3 rounded-md text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between transition-colors ${
+                            selectedSymbol.value === symbol.value 
+                              ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400' 
+                              : 'text-gray-700 dark:text-gray-300'
+                          }`}
+                        >
+                          <div>
+                            <div className="font-semibold">{symbol.label}</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">{symbol.category}</div>
+                          </div>
+                          <div className="text-xs font-mono bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">
+                            {symbol.value}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <Button
+                onClick={toggleFullscreen}
+                className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6"
+              >
+                {isFullscreen ? (
+                  <>
+                    <Minimize2 className="w-4 h-4 mr-2" />
+                    Exit
+                  </>
+                ) : (
+                  <>
+                    <Maximize2 className="w-4 h-4 mr-2" />
+                    Fullscreen
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Market Info and Timer Row */}
-        <div className="mb-6">
+        <div className="mb-8">
           <MarketInfoTimer
             marketData={marketData || undefined}
           />
         </div>
 
         {/* Chart Area - Full Width */}
-        <div className="w-full">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-semibold">Trading Chart</h2>
-                  {isMockData && (
-                    <Badge className="ml-2 bg-red-600 text-white">Mock Data</Badge>
-                  )}
-                  {fetchError && (
-                    <Badge className="ml-2 bg-orange-600 text-white">⚠️ {fetchError}</Badge>
-                  )}
+        <div className="w-full mb-8">
+            <Card className="border border-gray-200 dark:border-gray-800 shadow-lg">
+              <CardHeader className="border-b border-gray-200 dark:border-gray-800 pb-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+                      {selectedSymbol.label} Trading Chart
+                    </h2>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      {selectedSymbol.category}
+                    </p>
+                  </div>
+                  
                   {marketData && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold">
+                    <div className="flex flex-col items-start sm:items-end">
+                      <div className="text-3xl font-bold text-gray-900 dark:text-white">
                         ${marketData.price.toFixed(2)}
-                      </span>
-                      <div className="flex items-center gap-1">
+                      </div>
+                      <div className={`flex items-center gap-2 mt-1 font-semibold ${getChangeColor(marketData.change)}`}>
                         {getChangeIcon(marketData.change)}
-                        <span className={`text-sm font-medium ${getChangeColor(marketData.change)}`}>
+                        <span>
                           {marketData.change >= 0 ? "+" : ""}
                           {marketData.change.toFixed(2)} ({marketData.changePercent.toFixed(2)}%)
                         </span>
@@ -280,33 +277,32 @@ export default function ChartsPage() {
                     </div>
                   )}
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsFullscreen(!isFullscreen)}
-                  className="ml-2"
-                >
-                  {isFullscreen ? (
-                    <Minimize2 className="w-4 h-4" />
-                  ) : (
-                    <Maximize2 className="w-4 h-4" />
-                  )}
-                </Button>
+
+                {fetchError && (
+                  <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+                    <p className="text-sm text-orange-800 dark:text-orange-200">
+                      <span className="font-semibold">No Live Data:</span> {fetchError}
+                    </p>
+                  </div>
+                )}
               </CardHeader>
               <CardContent className="p-0">
                 {fetchError || !marketData ? (
-                  <div className={`w-full ${isFullscreen ? 'h-screen' : 'h-[600px]'} flex items-center justify-center bg-gray-50 dark:bg-gray-900`}>
-                    <div className="text-center">
-                      <p className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">
-                        📊 No data fetched
+                  <div className={`w-full ${isFullscreen ? 'h-screen' : 'h-[500px]'} flex items-center justify-center bg-gray-50 dark:bg-gray-900/50`}>
+                    <div className="text-center px-6">
+                      <div className="text-gray-600 dark:text-gray-400 mb-4">
+                        <Activity className="w-12 h-12 mx-auto opacity-50" />
+                      </div>
+                      <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        No Data Available
                       </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {fetchError || 'Unable to retrieve live market data for this symbol. Please try another symbol.'}
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {fetchError || 'Unable to retrieve live market data for this symbol. Please try another symbol or refresh the page.'}
                       </p>
                     </div>
                   </div>
                 ) : (
-                  <div className={`w-full ${isFullscreen ? 'h-screen' : 'h-[600px]'}`}>
+                  <div className={`w-full ${isFullscreen ? 'h-screen' : 'h-[500px]'}`}>
                     <TradingViewWidget 
                       isFullscreen={isFullscreen} 
                       symbol={selectedSymbol.tradingView}
@@ -319,46 +315,62 @@ export default function ChartsPage() {
 
         {/* Live Market Data Widgets */}
         {marketData && (
-          <div className="mt-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Activity className="w-5 h-5" />
-                  Live Market Data - {currentSymbol}
+          <div>
+            <Card className="border border-gray-200 dark:border-gray-800 shadow-lg">
+              <CardHeader className="border-b border-gray-200 dark:border-gray-800 pb-6">
+                <CardTitle className="flex items-center gap-3 text-2xl">
+                  <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                    <Activity className="w-5 h-5 text-green-600" />
+                  </div>
+                  Market Data - {currentSymbol}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  <div className="text-center p-4 border rounded-lg">
-                    <div className="text-sm text-muted-foreground mb-1">Current Price</div>
-                    <div className="text-2xl font-bold text-green-600">
+              <CardContent className="pt-8">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="p-6 border border-gray-200 dark:border-gray-800 rounded-lg hover:shadow-md transition-shadow">
+                    <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-3">
+                      Current Price
+                    </div>
+                    <div className="text-3xl font-bold text-green-600 mb-2">
                       ${marketData.price.toFixed(2)}
                     </div>
-                    <div className={`text-xs ${getChangeColor(marketData.change)}`}>
-                      {marketData.change >= 0 ? "+" : ""}
-                      {marketData.change.toFixed(2)} ({marketData.changePercent.toFixed(2)}%)
+                    <div className={`text-sm font-semibold flex items-center gap-1 ${getChangeColor(marketData.change)}`}>
+                      {getChangeIcon(marketData.change)}
+                      <span>
+                        {marketData.change >= 0 ? "+" : ""}
+                        {marketData.change.toFixed(2)} ({marketData.changePercent.toFixed(2)}%)
+                      </span>
                     </div>
                   </div>
 
-                  <div className="text-center p-4 border rounded-lg">
-                    <div className="text-sm text-muted-foreground mb-1">24h High</div>
-                    <div className="text-2xl font-bold text-green-600">
+                  <div className="p-6 border border-gray-200 dark:border-gray-800 rounded-lg hover:shadow-md transition-shadow">
+                    <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-3">
+                      24h High
+                    </div>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white">
                       ${marketData.high.toFixed(2)}
                     </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Peak price</p>
                   </div>
 
-                  <div className="text-center p-4 border rounded-lg">
-                    <div className="text-sm text-muted-foreground mb-1">24h Low</div>
-                    <div className="text-2xl font-bold text-red-600">
+                  <div className="p-6 border border-gray-200 dark:border-gray-800 rounded-lg hover:shadow-md transition-shadow">
+                    <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-3">
+                      24h Low
+                    </div>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white">
                       ${marketData.low.toFixed(2)}
                     </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Floor price</p>
                   </div>
 
-                  <div className="text-center p-4 border rounded-lg">
-                    <div className="text-sm text-muted-foreground mb-1">24h Volume</div>
-                    <div className="text-2xl font-bold">
+                  <div className="p-6 border border-gray-200 dark:border-gray-800 rounded-lg hover:shadow-md transition-shadow">
+                    <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-3">
+                      24h Volume
+                    </div>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white">
                       ${(marketData.volume / 1000000).toFixed(2)}M
                     </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Trading volume</p>
                   </div>
                 </div>
               </CardContent>

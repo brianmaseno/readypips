@@ -234,57 +234,66 @@ export default function SignalsPage() {
     <div className="min-h-screen bg-white dark:bg-black">
       <Navigation />
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-12">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Trading Signals Dashboard
+        <div className="text-center mb-16">
+          <div className="inline-block mb-6">
+            <div className="h-1 w-16 bg-green-600 rounded-full mx-auto"></div>
+          </div>
+          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            Trading Signals
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Access powerful trading signals, market analysis, and exclusive Telegram channel
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            Access real-time trading signals, advanced market analysis, and our exclusive community
           </p>
         </div>
 
         {/* Current Subscription Status */}
-        <div className="max-w-4xl mx-auto mb-12">
+        <div className="max-w-5xl mx-auto mb-16">
           {subscriptionLoading ? (
             <ShimmerSubscriptionStatus />
           ) : (
-            <Card className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 border-green-200 dark:border-green-800">
-                             <CardHeader className="text-center">
-                 <CardTitle className="text-2xl text-gray-900 dark:text-white flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
-                   <Crown className="w-8 h-8 text-yellow-500" />
-                   <span>Your Subscription Status</span>
-                 </CardTitle>
-               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Badge className="text-lg font-bold">
-                        {subscriptionStatus === "active" ? currentPlan?.toUpperCase() || "PREMIUM" : "BASIC"}
-                      </Badge>
+            <Card className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 shadow-lg">
+              <CardHeader className="border-b border-gray-200 dark:border-gray-800 pb-8">
+                <CardTitle className="text-3xl text-gray-900 dark:text-white text-center">
+                  Account Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-12">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
+                    <div className="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-3">
+                      Current Plan
                     </div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">Current Plan</h3>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                      {subscriptionStatus === "active" ? currentPlan?.charAt(0).toUpperCase() + currentPlan?.slice(1).toLowerCase() || "Premium" : "Basic"}
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                      {subscriptionStatus === "active" ? "Active Subscription" : "Free Plan"}
+                    </p>
                   </div>
                   
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Bell className="w-8 h-8 text-blue-600" />
+                  <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
+                    <div className="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-3">
+                      Signal Access
                     </div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">Signal Access</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {subscriptionStatus === "active" ? "Full Access" : "Basic Access"}
+                    <div className="text-3xl font-bold text-green-600">
+                      {subscriptionStatus === "active" ? "Full" : "Limited"}
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                      {subscriptionStatus === "active" ? "All signals available" : "Basic signals only"}
                     </p>
                   </div>
 
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <MessageCircle className="w-8 h-8 text-purple-600" />
+                  <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
+                    <div className="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-3">
+                      Community Access
                     </div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">Telegram Channel</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {subscriptionStatus === "active" ? "Access Granted" : "Upgrade to Access"}
+                    <div className="text-3xl font-bold text-blue-600">
+                      {subscriptionStatus === "active" ? "Yes" : "No"}
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                      {subscriptionStatus === "active" ? "Join our Telegram" : "Upgrade to join"}
                     </p>
                   </div>
                 </div>
@@ -295,28 +304,31 @@ export default function SignalsPage() {
 
         {/* Telegram Access for Subscribers */}
         {subscriptionStatus === "active" && (
-          <div className="max-w-2xl mx-auto mb-12">
-            <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200 dark:border-blue-800">
-              <CardHeader className="text-center">
-                                 <CardTitle className="text-xl text-gray-900 dark:text-white flex flex-col sm:flex-row items-center justify-center gap-2">
-                   <MessageCircle className="w-6 h-6 text-blue-600" />
-                   <span>Exclusive Telegram Channel Access</span>
-                 </CardTitle>
-                <CardDescription className="text-gray-600 dark:text-gray-400">
-                  Join our private Telegram channel for real-time signals and market updates
+          <div className="max-w-4xl mx-auto mb-16">
+            <Card className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 shadow-lg">
+              <CardHeader className="border-b border-gray-200 dark:border-gray-800 pb-8">
+                <CardTitle className="text-2xl text-gray-900 dark:text-white text-center">
+                  Exclusive Community Channel
+                </CardTitle>
+                <CardDescription className="text-center text-gray-600 dark:text-gray-400 text-base mt-3">
+                  Connect with our trading community and receive real-time signal notifications
                 </CardDescription>
               </CardHeader>
-              <CardContent className="text-center">
+              <CardContent className="pt-12 text-center">
+                <div className="mb-8">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-lg mb-6">
+                    <MessageCircle className="w-8 h-8 text-blue-600" />
+                  </div>
+                </div>
                 <Button
                   onClick={handleTelegramAccess}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-6 text-lg font-semibold mb-6"
                   size="lg"
                 >
-                  <MessageCircle className="w-5 h-5 mr-2" />
                   Join Telegram Channel
                 </Button>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
-                  Get instant notifications for new signals and market opportunities
+                <p className="text-gray-600 dark:text-gray-400">
+                  Get instant notifications for new signals and exclusive market analysis
                 </p>
               </CardContent>
             </Card>
@@ -325,7 +337,7 @@ export default function SignalsPage() {
 
         {/* Payment Method Selection - Only show if no active subscription */}
         {subscriptionStatus !== "active" && (
-          <div className="max-w-4xl mx-auto mb-12">
+          <div className="max-w-4xl mx-auto mb-16">
             {subscriptionLoading ? (
               <div className="rounded-lg border border-gray-200 dark:border-gray-800 p-6 text-center">
                 <div className="space-y-6">
@@ -338,53 +350,52 @@ export default function SignalsPage() {
                 </div>
               </div>
             ) : (
-              <Card className="bg-white dark:bg-black border-gray-200 dark:border-gray-800">
-                <CardHeader className="text-center">
-                  <CardTitle className="text-2xl text-black dark:text-white">
-                    Choose Payment Method
+              <Card className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 shadow-lg">
+                <CardHeader className="border-b border-gray-200 dark:border-gray-800 pb-8">
+                  <CardTitle className="text-2xl text-gray-900 dark:text-white text-center">
+                    Select Payment Method
                   </CardTitle>
-                  <CardDescription className="text-gray-600 dark:text-gray-400 text-lg">
-                    Select your preferred payment provider to get started
+                  <CardDescription className="text-center text-gray-600 dark:text-gray-400 text-base mt-3">
+                    Choose your preferred payment provider
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-12">
                   {/* Payment Method - Pesapal Only */}
                   <div className="flex justify-center mb-8">
-                    <div className="inline-flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+                    <div className="inline-flex bg-gray-100 dark:bg-gray-800 p-2 rounded-lg border border-gray-200 dark:border-gray-700">
                       <button
                         onClick={() => setSelectedProvider("pesapal")}
-                        className="px-6 py-3 rounded-md font-medium transition-all duration-200 bg-white dark:bg-gray-700 text-orange-600 dark:text-orange-400 shadow-sm"
+                        className="px-8 py-3 rounded-md font-semibold transition-all duration-200 bg-white dark:bg-gray-700 text-orange-600 dark:text-orange-400 shadow-md hover:shadow-lg"
                       >
                         <div className="flex items-center space-x-2">
                           <CreditCard className="w-5 h-5" />
-                          <span>Pesapal</span>
+                          <span>Pesapal Payment</span>
                         </div>
                       </button>
                     </div>
                   </div>
                   
                   {/* Payment Method Info */}
-                  <div className="text-center space-y-4">
-                    <div className="inline-flex items-center space-x-2 bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-full">
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        Secure Kenyan payments with Pesapal
+                  <div className="text-center space-y-6">
+                    <div className="inline-flex items-center space-x-2 bg-green-50 dark:bg-green-900/10 px-4 py-2 rounded-full border border-green-200 dark:border-green-800">
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                      <span className="text-sm text-green-700 dark:text-green-400 font-medium">
+                        Secure payments for Kenya and Africa
                       </span>
                     </div>
                     
                     {/* Pesapal Payment Options Image */}
-                    <div className="mt-4">
+                    <div className="mt-6">
                       <img 
                         src="/pesapal-payment-options.png" 
-                        alt="Pesapal Payment Options - M-Pesa, Airtel Money, Visa, Mastercard, and more"
-                        className="mx-auto max-w-md w-full h-auto rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+                        alt="Payment options including M-Pesa, Airtel Money, Visa, and Mastercard"
+                        className="mx-auto max-w-md w-full h-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700"
                         onError={(e) => {
-                          // Fallback if image doesn't exist
                           e.currentTarget.style.display = 'none';
                         }}
                       />
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                        Available payment methods: M-Pesa, Airtel Money, Visa, Mastercard, and more
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-4">
+                        Supported: M-Pesa, Airtel Money, Visa, Mastercard, and more
                       </p>
                     </div>
                   </div>
@@ -418,42 +429,48 @@ export default function SignalsPage() {
         {/* Features for Subscribers */}
         {subscriptionStatus === "active" && (
           <div className="mb-16">
-            <Card className="bg-white dark:bg-black border-gray-200 dark:border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-center text-black dark:text-white text-2xl">
+            <Card className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 shadow-lg">
+              <CardHeader className="border-b border-gray-200 dark:border-gray-800 pb-8">
+                <CardTitle className="text-center text-gray-900 dark:text-white text-3xl">
                   Your Premium Features
                 </CardTitle>
-                <CardDescription className="text-center text-gray-600 dark:text-gray-400">
-                  Unlock the full potential of Ready Pips
+                <CardDescription className="text-center text-gray-600 dark:text-gray-400 text-base mt-3">
+                  Access all the tools and insights you need to succeed
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-12">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div className="text-center">
-                    <TrendingUp className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-black dark:text-white mb-2">
+                  <div className="p-6 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800">
+                    <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mb-4">
+                      <TrendingUp className="w-6 h-6 text-green-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                       Real-Time Signals
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Get instant trading signals with high accuracy rates
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">
+                      Instant trading signals with high accuracy rates
                     </p>
                   </div>
-                  <div className="text-center">
-                    <BarChart3 className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-black dark:text-white mb-2">
+                  <div className="p-6 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800">
+                    <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mb-4">
+                      <BarChart3 className="w-6 h-6 text-green-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                       Advanced Analysis
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Access to premium market analysis and insights
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">
+                      Premium market analysis and trading insights
                     </p>
                   </div>
-                  <div className="text-center">
-                    <Users className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-black dark:text-white mb-2">
+                  <div className="p-6 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800">
+                    <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mb-4">
+                      <Users className="w-6 h-6 text-green-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                       Community Access
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Join our exclusive Telegram community
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">
+                      Join our exclusive Telegram trading community
                     </p>
                   </div>
                 </div>
@@ -463,40 +480,46 @@ export default function SignalsPage() {
         )}
 
         {/* Features Comparison */}
-        <div className="mt-16">
-          <Card className="bg-white dark:bg-black border-gray-200 dark:border-gray-800">
-            <CardHeader>
-                             <CardTitle className="text-center text-black dark:text-white text-2xl">
-                 Why Choose Ready Pips?
-               </CardTitle>
+        <div className="mt-20 mb-16">
+          <Card className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 shadow-lg">
+            <CardHeader className="border-b border-gray-200 dark:border-gray-800 pb-8">
+              <CardTitle className="text-3xl text-gray-900 dark:text-white text-center">
+                Why Choose Ready Pips?
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-12">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="text-center">
-                  <Zap className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-black dark:text-white mb-2">
+                <div className="p-6 border border-gray-200 dark:border-gray-800 rounded-lg hover:shadow-lg transition-shadow">
+                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mb-4">
+                    <Zap className="w-6 h-6 text-green-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
                     Real-Time Signals
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Get instant trading signals with high accuracy rates
+                  <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                    Get instant trading signals with industry-leading accuracy rates and fast execution
                   </p>
                 </div>
-                <div className="text-center">
-                  <Shield className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-black dark:text-white mb-2">
+                <div className="p-6 border border-gray-200 dark:border-gray-800 rounded-lg hover:shadow-lg transition-shadow">
+                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mb-4">
+                    <Shield className="w-6 h-6 text-green-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
                     Risk Management
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Advanced risk management tools to protect your capital
+                  <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                    Advanced risk management tools and protective mechanisms to safeguard your capital
                   </p>
                 </div>
-                <div className="text-center">
-                  <Globe className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-black dark:text-white mb-2">
+                <div className="p-6 border border-gray-200 dark:border-gray-800 rounded-lg hover:shadow-lg transition-shadow">
+                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mb-4">
+                    <Globe className="w-6 h-6 text-green-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
                     Global Markets
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Access to forex, crypto, and stock markets worldwide
+                  <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                    Access to forex, cryptocurrency, and stock markets across worldwide exchanges
                   </p>
                 </div>
               </div>
@@ -505,36 +528,38 @@ export default function SignalsPage() {
         </div>
 
         {/* FAQ Section with Accordions */}
-        <div className="mt-16">
-          <Card className="bg-white dark:bg-black border-gray-200 dark:border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-center text-black dark:text-white text-2xl">
+        <div className="mb-20">
+          <Card className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 shadow-lg">
+            <CardHeader className="border-b border-gray-200 dark:border-gray-800 pb-8">
+              <CardTitle className="text-3xl text-gray-900 dark:text-white text-center">
                 Frequently Asked Questions
               </CardTitle>
-              <CardDescription className="text-center text-gray-600 dark:text-gray-400">
-                Everything you need to know about Ready Pips
+              <CardDescription className="text-center text-gray-600 dark:text-gray-400 text-base mt-3">
+                Common questions about our trading signals platform
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="max-w-3xl mx-auto space-y-4">
+            <CardContent className="pt-8">
+              <div className="max-w-3xl mx-auto space-y-3">
                 {faqData.map((faq, index) => (
-                  <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                  <div key={index} className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
                     <button
                       onClick={() => toggleFaq(index)}
-                      className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                      className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-200"
                     >
-                      <span className="font-semibold text-black dark:text-white text-lg">
+                      <span className="font-semibold text-gray-900 dark:text-white text-base">
                         {faq.question}
                       </span>
-                      {openFaqIndex === index ? (
-                        <ChevronUp className="w-5 h-5 text-gray-500" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5 text-gray-500" />
-                      )}
+                      <div className="flex-shrink-0 ml-4">
+                        {openFaqIndex === index ? (
+                          <ChevronUp className="w-5 h-5 text-green-600" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5 text-gray-400" />
+                        )}
+                      </div>
                     </button>
                     {openFaqIndex === index && (
-                      <div className="px-6 pb-4">
-                        <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                      <div className="px-6 pb-4 bg-gray-50 dark:bg-gray-900/30 border-t border-gray-200 dark:border-gray-800">
+                        <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
                           {faq.answer}
                         </p>
                       </div>
