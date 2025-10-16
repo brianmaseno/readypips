@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Navigation } from "@/components/navigation";
 import { useAuth } from "@/components/auth-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,6 +57,7 @@ export default function ChartsPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [marketData, setMarketData] = useState<MarketData | null>(null);
   const [isMockData, setIsMockData] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentSymbol, setCurrentSymbol] = useState(defaultSymbol.value);
   const [selectedSymbol, setSelectedSymbol] = useState(defaultSymbol);
@@ -70,16 +71,17 @@ export default function ChartsPage() {
     }
   }, [user, router]);
 
-  // Fetch market data
-  const fetchMarketData = async (symbol: string = currentSymbol) => {
+  // Fetch market data - NO MOCK DATA, only real data or error
+  const fetchMarketData = useCallback(async (symbol: string = currentSymbol) => {
     try {
       setLoading(true);
       setIsMockData(false);
+      setFetchError(null);
 
       // Fetch real market data from our API
       const response = await fetch(`/api/market-data?symbol=${symbol}`);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`Failed to fetch data: ${response.status}`);
       }
       const data: MarketData = await response.json();
 
@@ -88,30 +90,21 @@ export default function ChartsPage() {
       if (looksLikeMock) {
         console.warn('⚠️ Market data looks like mock/fallback data for', symbol, data);
         setIsMockData(true);
+        setFetchError('No live data available for this symbol');
+        setMarketData(null);
       } else {
         setIsMockData(false);
+        setMarketData(data);
       }
-
-      setMarketData(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching market data:", error);
-      // Fallback to mock data if API fails
-      const mockData: MarketData = {
-        symbol: symbol,
-        price: symbol === 'XAUUSD' ? 2000 + Math.random() * 100 : 150 + Math.random() * 100,
-        change: (Math.random() - 0.5) * 20,
-        changePercent: (Math.random() - 0.5) * 2,
-        volume: Math.random() * 1000000 + 100000,
-        high: symbol === 'XAUUSD' ? 2100 + Math.random() * 50 : 160 + Math.random() * 20,
-        low: symbol === 'XAUUSD' ? 1950 + Math.random() * 50 : 140 + Math.random() * 20,
-        open: symbol === 'XAUUSD' ? 2000 + Math.random() * 30 : 145 + Math.random() * 15,
-      };
-      setMarketData(mockData);
-      setIsMockData(true);
+      setFetchError(error.message || 'Unable to fetch market data');
+      setMarketData(null);
+      setIsMockData(false);
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentSymbol]);
 
   // Initial data fetch and periodic updates
   useEffect(() => {
@@ -120,7 +113,7 @@ export default function ChartsPage() {
       const interval = setInterval(() => fetchMarketData(currentSymbol), 30000); // Update every 30 seconds
       return () => clearInterval(interval);
     }
-  }, [user, currentSymbol]);
+  }, [user, currentSymbol, fetchMarketData]);
 
   // Handle symbol selection
   const handleSymbolSelect = (symbol: typeof availableSymbols[0]) => {
@@ -269,6 +262,9 @@ export default function ChartsPage() {
                   {isMockData && (
                     <Badge className="ml-2 bg-red-600 text-white">Mock Data</Badge>
                   )}
+                  {fetchError && (
+                    <Badge className="ml-2 bg-orange-600 text-white">⚠️ {fetchError}</Badge>
+                  )}
                   {marketData && (
                     <div className="flex items-center gap-2">
                       <span className="text-lg font-bold">
@@ -298,12 +294,25 @@ export default function ChartsPage() {
                 </Button>
               </CardHeader>
               <CardContent className="p-0">
-                <div className={`w-full ${isFullscreen ? 'h-screen' : 'h-[600px]'}`}>
-                  <TradingViewWidget 
-                    isFullscreen={isFullscreen} 
-                    symbol={selectedSymbol.tradingView}
-                  />
-                </div>
+                {fetchError || !marketData ? (
+                  <div className={`w-full ${isFullscreen ? 'h-screen' : 'h-[600px]'} flex items-center justify-center bg-gray-50 dark:bg-gray-900`}>
+                    <div className="text-center">
+                      <p className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">
+                        📊 No data fetched
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {fetchError || 'Unable to retrieve live market data for this symbol. Please try another symbol.'}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={`w-full ${isFullscreen ? 'h-screen' : 'h-[600px]'}`}>
+                    <TradingViewWidget 
+                      isFullscreen={isFullscreen} 
+                      symbol={selectedSymbol.tradingView}
+                    />
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
