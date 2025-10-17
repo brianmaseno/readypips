@@ -21,10 +21,10 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Products */}
+          {/* Company */}
           <div>
             <h4 className="font-semibold text-black dark:text-white mb-4">
-              Products
+              Company
             </h4>
             <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
               <li>
@@ -49,6 +49,14 @@ export function Footer() {
                   className="hover:text-green-600 transition-colors"
                 >
                   Copy Trading
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/admin/login"
+                  className="hover:text-green-600 transition-colors"
+                >
+                  Admin Dashboard
                 </Link>
               </li>
             </ul>
@@ -139,6 +147,17 @@ export function Footer() {
               <p>
                 © {currentYear} Ready Pips. All rights reserved. Made with{" "}
                 <Heart className="w-4 h-4 inline text-red-600" /> for traders.
+              </p>
+              <p className="mt-2">
+                Developed by{" "}
+                <a
+                  href="https://www.maxson.co.ke/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-green-600 hover:text-green-700 font-semibold transition-colors"
+                >
+                  Maxson Limited
+                </a>
               </p>
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0 text-sm text-gray-600 dark:text-gray-400">

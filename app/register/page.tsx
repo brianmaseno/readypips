@@ -112,7 +112,7 @@ export default function RegisterPage() {
             <form onSubmit={handleSubmit} className="space-y-4" autoComplete="on">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-black dark:text-white">First Name</Label>
+                  <Label htmlFor="firstName" className="text-black dark:text-white">First Name *</Label>
                   <Input
                     id="firstName"
                     name="firstName"
@@ -125,7 +125,7 @@ export default function RegisterPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-black dark:text-white">Last Name</Label>
+                  <Label htmlFor="lastName" className="text-black dark:text-white">Last Name *</Label>
                   <Input
                     id="lastName"
                     name="lastName"
@@ -140,7 +140,7 @@ export default function RegisterPage() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-black dark:text-white">Email</Label>
+                <Label htmlFor="email" className="text-black dark:text-white">Email *</Label>
                 <Input
                   id="email"
                   name="email"
@@ -169,22 +169,7 @@ export default function RegisterPage() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-black dark:text-white">Password</Label>
-                <Input
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  type="tel"
-                  required
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  placeholder="+1234567890"
-                  autoComplete="tel"
-                  className="bg-white dark:bg-black border-gray-300 dark:border-gray-600 text-black dark:text-white"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-black dark:text-white">Password</Label>
+                <Label htmlFor="password" className="text-black dark:text-white">Password *</Label>
                 <Input
                   id="password"
                   name="password"
@@ -198,7 +183,7 @@ export default function RegisterPage() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-black dark:text-white">Confirm Password</Label>
+                <Label htmlFor="confirmPassword" className="text-black dark:text-white">Confirm Password *</Label>
                 <Input
                   id="confirmPassword"
                   name="confirmPassword"

@@ -28,7 +28,7 @@ import {
 import PricingPlans from "@/components/pricing-plans";
 
 export default function HomePage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
   return (
     <div className="min-h-screen bg-white dark:bg-black">
@@ -59,41 +59,47 @@ export default function HomePage() {
             variant="outline"
           >
             <Zap className="w-3 h-3 mr-1" />
-            AI-Powered Trading Signals
+            Precise powered Trading Signal
           </Badge>
           <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white leading-tight">
             Ready <span className="text-green-400">Pips</span>
           </h1>
           <p className="text-xl text-gray-100 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Get real-time. Smart trading signals. Proven accuracy up to 93% Join thousands of successful traders using our proprietary algorithm.
+            Get real-time. Smart trading signals. Proven accuracy up to 93%.{" "}
+            <br />
+            Join thousands of successful traders using our proprietary algorithm.
           </p>
 
           {/* Conditional CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            {user ? (
-              // Logged in user - show dashboard button
-              <Link href="/dashboard">
-                <Button
-                  size="lg"
-                  className="bg-green-600 hover:bg-green-700 text-white font-semibold"
-                >
-                  <Home className="mr-2 w-4 h-4" />
-                  Go to Dashboard
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </Link>
-            ) : (
-              // Not logged in - show signals button
-              <Link href="/signals">
-                <Button
-                  size="lg"
-                  className="bg-green-600 hover:bg-green-700 text-white font-semibold"
-                >
-                  <BarChart3 className="mr-2 w-4 h-4" />
-                  Signals
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </Link>
+            {!loading && (
+              <>
+                {user ? (
+                  // Logged in user - show dashboard button
+                  <Link href="/dashboard">
+                    <Button
+                      size="lg"
+                      className="bg-green-600 hover:bg-green-700 text-white font-semibold"
+                    >
+                      <Home className="mr-2 w-4 h-4" />
+                      Go to Dashboard
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  </Link>
+                ) : (
+                  // Not logged in - show signals button
+                  <Link href="/signals">
+                    <Button
+                      size="lg"
+                      className="bg-green-600 hover:bg-green-700 text-white font-semibold"
+                    >
+                      <BarChart3 className="mr-2 w-4 h-4" />
+                      Signals
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  </Link>
+                )}
+              </>
             )}
             <Link href="/copy-trading">
               <Button
@@ -463,14 +469,14 @@ export default function HomePage() {
               <h3 className="font-semibold mb-4">Support</h3>
               <ul className="space-y-2 text-gray-400">
                 <li>
-                  <a href="#" className="hover:text-white">
+                  <Link href="/support" className="hover:text-white">
                     Help Center
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white">
+                  <Link href="/support" className="hover:text-white">
                     Contact Us
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -478,20 +484,31 @@ export default function HomePage() {
               <h3 className="font-semibold mb-4">Company</h3>
               <ul className="space-y-2 text-gray-400">
                 <li>
-                  <a href="#" className="hover:text-white">
-                    About
-                  </a>
+                  <Link href="/admin/login" className="hover:text-white">
+                    Admin Dashboard
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white">
+                  <Link href="/privacy-policy" className="hover:text-white">
                     Privacy Policy
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
             <p>&copy; 2025 Ready Pips. All rights reserved.</p>
+            <p className="mt-2">
+              Developed by{" "}
+              <a
+                href="https://www.maxson.co.ke/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-green-400 hover:text-green-300 font-semibold transition-colors"
+              >
+                Maxson Limited
+              </a>
+            </p>
           </div>
         </div>
       </footer>

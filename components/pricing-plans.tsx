@@ -117,7 +117,7 @@ export default function PricingPlans({
           {plan.popular && (
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
               <Badge className="bg-green-600 text-white px-3 py-1">
-                Most Popular
+                Most Recommended
               </Badge>
             </div>
           )}
