@@ -10,6 +10,7 @@ export interface User {
   password?: string;
   firstName: string;
   lastName: string;
+  phoneNumber?: string;
   subscriptionStatus: "active" | "inactive" | "expired";
   subscriptionType: "basic" | "premium" | "pro" | null;
   subscriptionEndDate?: Date;

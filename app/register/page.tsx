@@ -16,6 +16,7 @@ export default function RegisterPage() {
     firstName: '',
     lastName: '',
     email: '',
+    phoneNumber: '',
     password: '',
     confirmPassword: '',
   });
@@ -26,6 +27,11 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!formData.phoneNumber.trim()) {
+      setError('Phone number is required');
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -49,6 +55,7 @@ export default function RegisterPage() {
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
+          phoneNumber: formData.phoneNumber,
           password: formData.password,
         }),
       });
@@ -142,6 +149,36 @@ export default function RegisterPage() {
                   value={formData.email}
                   onChange={handleChange}
                   autoComplete="email"
+                  className="bg-white dark:bg-black border-gray-300 dark:border-gray-600 text-black dark:text-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phoneNumber" className="text-black dark:text-white">Phone Number *</Label>
+                <Input
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  type="tel"
+                  required
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  placeholder="+1234567890"
+                  autoComplete="tel"
+                  className="bg-white dark:bg-black border-gray-300 dark:border-gray-600 text-black dark:text-white"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-black dark:text-white">Password</Label>
+                <Input
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  type="tel"
+                  required
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  placeholder="+1234567890"
+                  autoComplete="tel"
                   className="bg-white dark:bg-black border-gray-300 dark:border-gray-600 text-black dark:text-white"
                 />
               </div>

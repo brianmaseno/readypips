@@ -66,6 +66,11 @@ export function Navigation() {
 
   const moreItems = [
     {
+      name: "Support",
+      href: "/support",
+      icon: HelpCircle,
+    },
+    {
       name: "FAQs",
       href: "/faqs",
       icon: HelpCircle,
@@ -168,7 +173,7 @@ export function Navigation() {
         {/* User Actions */}
         <div className="flex items-center space-x-2">
           <ThemeSwitcher />
-          <CreditDisplay />
+          {user && <CreditDisplay />}
 
           {user ? (
             <>
@@ -242,7 +247,7 @@ export function Navigation() {
 
           <div className="flex items-center space-x-2">
             <ThemeSwitcher />
-            <CreditDisplay />
+            {user && <CreditDisplay />}
 
             <Button
               variant="ghost"

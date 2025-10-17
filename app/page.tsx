@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Navigation } from "@/components/navigation";
 import { useAuth } from "@/components/auth-context";
-import TradingViewTicker from "@/components/tradingview-ticker";
 import {
   Card,
   CardContent,
@@ -35,13 +34,6 @@ export default function HomePage() {
     <div className="min-h-screen bg-white dark:bg-black">
       {/* Navigation */}
       <Navigation />
-
-      {/* TradingView Ticker Widget */}
-      <div className="bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-        <div className="h-16">
-          <TradingViewTicker />
-        </div>
-      </div>
 
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">
@@ -73,9 +65,7 @@ export default function HomePage() {
             Ready <span className="text-green-400">Pips</span>
           </h1>
           <p className="text-xl text-gray-100 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Get real-time, AI-powered trading signals with up to 93% accuracy.
-            Join thousands of successful traders using our proprietary
-            algorithm.
+            Get real-time. Smart trading signals. Proven accuracy up to 93% Join thousands of successful traders using our proprietary algorithm.
           </p>
 
           {/* Conditional CTA Buttons */}

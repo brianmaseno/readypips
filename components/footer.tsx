@@ -62,6 +62,14 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
               <li>
                 <Link
+                  href="/support"
+                  className="hover:text-green-600 transition-colors"
+                >
+                  Support
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/faqs"
                   className="hover:text-green-600 transition-colors"
                 >
@@ -103,7 +111,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
               <li>
                 <a
-                  href="mailto:briancreatives@gmail.com"
+                  href="mailto:brianmayoga@gmail.com"
                   className="hover:text-green-600 transition-colors"
                 >
                   Email Support
@@ -111,12 +119,12 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://wa.me/254728747441"
+                  href="https://t.me/tradecafeafrica"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-green-600 transition-colors"
                 >
-                  WhatsApp Support
+                  Telegram Community
                 </a>
               </li>
             </ul>

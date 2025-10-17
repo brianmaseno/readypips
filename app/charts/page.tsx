@@ -14,11 +14,13 @@ import {
   DollarSign,
   Activity,
   Clock,
-  ChevronDown
+  ChevronDown,
+  BarChart3
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import MarketInfoTimer from "@/components/market-info-timer";
 import TradingViewWidget from "@/components/tradingview-widget";
+import TradingViewTicker from "@/components/tradingview-ticker";
 
 interface MarketData {
   symbol: string;
@@ -62,6 +64,7 @@ export default function ChartsPage() {
   const [currentSymbol, setCurrentSymbol] = useState(defaultSymbol.value);
   const [selectedSymbol, setSelectedSymbol] = useState(defaultSymbol);
   const [showSymbolSelector, setShowSymbolSelector] = useState(false);
+  const [showCharterLibrary, setShowCharterLibrary] = useState(false);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -163,6 +166,13 @@ export default function ChartsPage() {
     <div className="min-h-screen bg-white dark:bg-black">
       <Navigation />
 
+      {/* TradingView Ticker Widget */}
+      <div className="bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+        <div className="h-16">
+          <TradingViewTicker />
+        </div>
+      </div>
+
       <div className="container mx-auto px-4 py-12">
         {/* Header */}
         <div className="mb-8">
@@ -220,6 +230,14 @@ export default function ChartsPage() {
                   </div>
                 )}
               </div>
+              
+              <Button
+                onClick={() => window.open('https://charting-library.tradingview-widget.com', '_blank')}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Advanced Library
+              </Button>
               
               <Button
                 onClick={toggleFullscreen}

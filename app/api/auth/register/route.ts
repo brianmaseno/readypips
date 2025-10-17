@@ -5,10 +5,10 @@ import { sendEmail, emailTemplates } from '@/lib/email-service';
 
 export async function POST(request: NextRequest) {
   try {
-    const { firstName, lastName, email, password } = await request.json();
+    const { firstName, lastName, email, phoneNumber, password } = await request.json();
 
     // Validate input
-    if (!firstName || !lastName || !email || !password) {
+    if (!firstName || !lastName || !email || !phoneNumber || !password) {
       return NextResponse.json(
         { error: 'All fields are required' },
         { status: 400 }
@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
       lastName,
       email,
       password,
+      phoneNumber,
       subscriptionStatus: 'inactive',
       subscriptionType: null,
     });
