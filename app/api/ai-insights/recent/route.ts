@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       }
 
       // Extract key fields for summary
-      const summary = {
+      const summary: Record<string, any> = {
         _id: doc._id.toString(),
         publicId: doc.publicId,
         symbol: doc.symbol,
@@ -56,9 +56,7 @@ export async function GET(request: NextRequest) {
 
       // Include full analysis if requested
       if (includeRaw) {
-        summary.fullAnalysis = includeRaw 
-          ? doc.analysis.substring(0, 500) + (doc.analysis.length > 500 ? "..." : "")
-          : null;
+        summary.fullAnalysis = doc.analysis.substring(0, 500) + (doc.analysis.length > 500 ? "..." : "");
       }
 
       return summary;
