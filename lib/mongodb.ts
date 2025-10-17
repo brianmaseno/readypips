@@ -33,5 +33,6 @@ export default clientPromise;
 
 export async function getDatabase(): Promise<Db> {
   const client = await clientPromise;
-  return client.db("trading-signals");
+  const dbName = process.env.MONGODB_DB_NAME || "ready-pips";
+  return client.db(dbName);
 }

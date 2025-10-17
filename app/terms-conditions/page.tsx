@@ -83,7 +83,7 @@ export default function TermsConditionsPage() {
               5. Subscription Terms
             </h2>
             <p className="mb-3">
-              Ready Pips offers subscription plans (Weekly, Monthly, 3 Months, and 6 Months). By subscribing, you agree to:
+              Ready Pips offers subscription plans (Weekly, Monthly, 3 Months). By subscribing, you agree to:
             </p>
             <ul className="list-disc list-inside space-y-2">
               <li>Automatic renewal at the end of each billing period unless cancelled</li>
