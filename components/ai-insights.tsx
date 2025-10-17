@@ -594,7 +594,7 @@ const AIInsights = forwardRef<AIInsightsRef, AIInsightsProps>(
               stayOutOfMarket: "Stay out of market conditions not met",
             },
             // Raw analysis data for detailed modal display
-            analysis: analysisData.analysis,
+            analysis: analysisData.analysis || (analysisData.raw ? { raw: analysisData.raw } : undefined),
             implementation: analysisData.implementation,
             technical_rationale: analysisData.technical_rationale,
             contingency_scenarios: analysisData.contingency_scenarios,
@@ -618,7 +618,9 @@ const AIInsights = forwardRef<AIInsightsRef, AIInsightsProps>(
         } else {
           const errorData = await response.json();
           console.error("❌ [AI Insights] API Error:", errorData);
-          throw new Error(errorData.error || "Failed to analyze market data");
+          // Prefer detailed message if provided by server
+          const message = errorData.details || errorData.error || "Failed to analyze market data";
+          throw new Error(message);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");

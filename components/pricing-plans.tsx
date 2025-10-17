@@ -69,24 +69,24 @@ const plans = [
     ],
     popular: false,
   },
-  {
-    name: "6 Months",
-    price: "$149",
-    period: "/6 months",
-    features: [
-      "Unlimited signals",
-      "AI-powered analysis",
-      "WhatsApp notifications",
-      "24/7 support",
-      "Custom indicators",
-      "API access",
-      "Advanced risk management",
-      "Multi-account support",
-      "Dedicated support",
-      "Save $25 vs monthly",
-    ],
-    popular: false,
-  },
+  // {
+  //   name: "6 Months",
+  //   price: "$149",
+  //   period: "/6 months",
+  //   features: [
+  //     "Unlimited signals",
+  //     "AI-powered analysis",
+  //     "WhatsApp notifications",
+  //     "24/7 support",
+  //     "Custom indicators",
+  //     "API access",
+  //     "Advanced risk management",
+  //     "Multi-account support",
+  //     "Dedicated support",
+  //     "Save $25 vs monthly",
+  //   ],
+  //   popular: false,
+  // },
 ];
 
 export default function PricingPlans({

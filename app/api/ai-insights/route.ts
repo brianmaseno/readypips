@@ -417,59 +417,95 @@ Respond ONLY with valid JSON in the exact format above. Ensure all price levels 
       throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
     }
 
-    const data = await response.json();
-    const generatedText = data.candidates[0].content.parts[0].text;
+    // Read raw response text for defensive logging and parsing
+    const rawResponseText = await response.text();
+    let data: any;
+    try {
+      data = JSON.parse(rawResponseText);
+    } catch (e) {
+      console.warn("🤖 [AI Insights] Warning: Gemini response is not valid JSON. Storing raw text for inspection.");
+      data = { rawText: rawResponseText };
+    }
+
+    // Defensive extraction of generated text (supporting both object and raw text responses)
+    let generatedText = "";
+    try {
+      generatedText =
+        data?.candidates?.[0]?.content?.[0]?.text ||
+        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        data?.candidates?.[0]?.content?.parts?.[0]?.content?.[0]?.text ||
+        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        data?.generatedText ||
+        data?.rawText ||
+        "";
+    } catch (e) {
+      generatedText = data?.rawText || "";
+    }
 
     // Log AI response
-    console.log("🤖 [AI Insights] Gemini API Response:");
-    console.log("🤖 [AI Insights] Raw Response Length:", generatedText.length);
+    console.log("🤖 [AI Insights] Gemini API Response (defensive logging):");
+    console.log("🤖 [AI Insights] Raw Response Length:", generatedText.length || rawResponseText.length);
     console.log(
       "🤖 [AI Insights] Raw Response Preview:",
-      generatedText.substring(0, 500) + "..."
+      (generatedText || rawResponseText).substring(0, 1000) + "..."
     );
 
     // Parse the JSON response
-    let analysis;
+    let analysis: any;
     try {
-      const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
+      const jsonMatch = (generatedText || rawResponseText).match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        throw new Error("No JSON found in response");
-      }
-      analysis = JSON.parse(jsonMatch[0]);
+        // If no JSON found, store raw text under analysis.raw to aid debugging
+        analysis = { raw: generatedText || rawResponseText };
+        console.warn("❗ [AI Insights] No JSON object found in AI response. Saving raw text under analysis.raw");
+      } else {
+        analysis = JSON.parse(jsonMatch[0]);
 
-      // Log parsed analysis
-      console.log("✅ [AI Insights] Successfully parsed AI analysis:");
-      console.log(
-        "📊 [AI Insights] Analysis Structure:",
-        JSON.stringify(analysis, null, 2)
-      );
-      console.log("📊 [AI Insights] Analysis Keys:", Object.keys(analysis));
+        // Log parsed analysis
+        console.log("✅ [AI Insights] Successfully parsed AI analysis:");
+        console.log(
+          "📊 [AI Insights] Analysis Structure:",
+          JSON.stringify(analysis, null, 2)
+        );
+        console.log("📊 [AI Insights] Analysis Keys:", Object.keys(analysis));
 
-      if (analysis.meta) {
-        console.log(
-          "📊 [AI Insights] Meta Data:",
-          JSON.stringify(analysis.meta, null, 2)
-        );
-      }
-      if (analysis.analysis) {
-        console.log(
-          "📊 [AI Insights] Analysis Categories:",
-          Object.keys(analysis.analysis)
-        );
-      }
-      if (analysis.simulation_strategy) {
-        console.log(
-          "📊 [AI Insights] Simulation Strategy:",
-          JSON.stringify(analysis.simulation_strategy, null, 2)
-        );
+        if (analysis.meta) {
+          console.log(
+            "📊 [AI Insights] Meta Data:",
+            JSON.stringify(analysis.meta, null, 2)
+          );
+        }
+        if (analysis.analysis) {
+          console.log(
+            "📊 [AI Insights] Analysis Categories:",
+            Object.keys(analysis.analysis)
+          );
+        }
+        if (analysis.simulation_strategy) {
+          console.log(
+            "📊 [AI Insights] Simulation Strategy:",
+            JSON.stringify(analysis.simulation_strategy, null, 2)
+          );
+        }
       }
     } catch (parseError) {
       console.error(
         "❌ [AI Insights] Error parsing Gemini response:",
         parseError
       );
-      console.error("❌ [AI Insights] Raw response:", generatedText);
-      throw new Error("Failed to parse AI response");
+      console.error("❌ [AI Insights] Raw response:", generatedText || rawResponseText);
+      // Store raw text into analysis to avoid failing the entire request
+      analysis = { raw: generatedText || rawResponseText };
+    }
+
+    // Normalize analysis to a string for storage. If analysis is only raw text, wrap it.
+    let analysisForStorage: string;
+    if (typeof analysis === "string") {
+      analysisForStorage = analysis;
+    } else if (analysis && typeof analysis === "object") {
+      analysisForStorage = JSON.stringify(analysis);
+    } else {
+      analysisForStorage = JSON.stringify({ raw: generatedText || "" });
     }
 
     // Create analysis record for MongoDB
@@ -477,7 +513,7 @@ Respond ONLY with valid JSON in the exact format above. Ensure all price levels 
       publicId: generatePublicId(),
       symbol: symbol.toUpperCase(),
       timeframe: analysisContext.strategy,
-      analysis: JSON.stringify(analysis),
+      analysis: analysisForStorage,
       isArchived: false,
       newsWarnings: [],
       creditUsed: false, // Free analysis - no credits used
@@ -529,9 +565,16 @@ Respond ONLY with valid JSON in the exact format above. Ensure all price levels 
 
     return NextResponse.json(responseData);
   } catch (error) {
-    console.error("Error in AI insights API:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("❌ Error in AI insights API:", errorMessage);
+    console.error("❌ Full error:", error);
+    
     return NextResponse.json(
-      { error: "Failed to generate AI insights" },
+      { 
+        error: "Failed to generate AI insights",
+        details: errorMessage,
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     );
   }
