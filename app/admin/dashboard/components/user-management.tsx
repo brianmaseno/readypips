@@ -26,7 +26,7 @@ export default function UserManagement({ admin }: { admin: any }) {
 
   const fetchUsers = async () => {
     try {
-      const token = localStorage.getItem('admin_token');
+      const token = localStorage.getItem('token');
       if (!token) return;
 
       const response = await fetch('/api/admin/users', {

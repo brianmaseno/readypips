@@ -26,7 +26,7 @@ export default function Analytics({ admin }: { admin: any }) {
 
   const fetchAnalytics = async () => {
     try {
-      const token = localStorage.getItem('admin_token');
+      const token = localStorage.getItem('token');
       if (!token) return;
 
       const response = await fetch('/api/admin/dashboard/stats', {

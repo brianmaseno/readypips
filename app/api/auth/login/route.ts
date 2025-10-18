@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { findUser, verifyPassword, generateToken } from '@/lib/auth';
+import { getDatabase } from '@/lib/mongodb';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +14,39 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user
+    // Check if user is an admin first
+    const db = await getDatabase();
+    const admin = await db.collection('admins').findOne({ email });
+    
+    if (admin) {
+      // Verify admin password
+      const isValidPassword = await verifyPassword(password, admin.password);
+      if (!isValidPassword) {
+        return NextResponse.json(
+          { error: 'Invalid credentials' },
+          { status: 401 }
+        );
+      }
+
+      // Generate token for admin
+      const token = generateToken(admin._id.toString());
+
+      // Remove password from response
+      const { password: _, ...adminWithoutPassword } = admin;
+
+      return NextResponse.json({
+        message: 'Login successful',
+        token,
+        user: {
+          ...adminWithoutPassword,
+          _id: admin._id.toString(),
+          role: admin.role,
+          isAdmin: true,
+        },
+      });
+    }
+
+    // Find regular user
     const user = await findUser(email);
     if (!user) {
       return NextResponse.json(
@@ -48,7 +81,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       message: 'Login successful',
       token,
-      user: userWithoutPassword,
+      user: {
+        ...userWithoutPassword,
+        isAdmin: false,
+      },
     });
   } catch (error) {
     console.error('Login error:', error);

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import { useToast } from '@/hooks/use-toast';
 import AdminSidebar from './components/admin-sidebar';
 import DashboardOverview from './components/dashboard-overview';
@@ -30,23 +31,37 @@ export default function AdminDashboard() {
 
   const fetchAdminProfile = async (token: string) => {
     try {
-      const response = await fetch('/api/admin/profile', {
+      const response = await fetch('/api/auth/verify', {
+        method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
-        localStorage.removeItem('admin_token');
-        router.push('/admin/login');
+        localStorage.removeItem('token');
+        router.push('/login');
         return;
       }
 
       const data = await response.json();
-      setAdmin(data.admin);
+      
+      // Check if user is an admin
+      if (!data.user.isAdmin && !data.user.role) {
+        toast({
+          title: 'Access Denied',
+          description: 'You do not have permission to access the admin dashboard',
+          variant: 'destructive',
+        });
+        router.push('/signals');
+        return;
+      }
+      
+      setAdmin(data.user);
     } catch (error) {
       console.error('Error fetching admin profile:', error);
-      router.push('/admin/login');
+      router.push('/login');
     } finally {
       setLoading(false);
     }
@@ -54,9 +69,9 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     // Check admin authentication
-    const token = localStorage.getItem('admin_token');
+    const token = localStorage.getItem('token');
     if (!token) {
-      router.push('/admin/login');
+      router.push('/login');
       return;
     }
 
@@ -64,13 +79,28 @@ export default function AdminDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('admin_token');
+  const handleLogout = async () => {
+    // Clear all localStorage items
+    localStorage.clear();
+    
+    // Sign out from NextAuth session
+    await signOut({ redirect: false });
+    
     toast({
       title: 'Logged out',
       description: 'You have been logged out successfully',
     });
-    router.push('/admin/login');
+    
+    // Clear browser cache
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(
+        cacheNames.map(cacheName => caches.delete(cacheName))
+      );
+    }
+    
+    // Force redirect with page reload to clear all cache
+    window.location.href = '/login';
   };
 
   if (loading) {
@@ -113,7 +143,7 @@ export default function AdminDashboard() {
               {getSectionTitle(currentSection)}
             </h1>
             <p className="mt-1 text-sm text-gray-600">
-              Welcome back, {admin.firstName}! (Role: {admin.role.replace('_', ' ').toUpperCase()})
+              Welcome back, {admin.firstName}! {admin.role && `(Role: ${admin.role.replace('_', ' ').toUpperCase()})`}
             </p>
           </div>
         </div>

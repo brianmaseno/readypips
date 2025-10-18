@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 
 interface User {
   _id: string;
@@ -16,8 +16,8 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (token: string) => void;
-  logout: () => void;
+  login: (token: string, redirectUrl?: string) => void;
+  logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
 
@@ -42,7 +42,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           lastName: session.user.lastName,
           subscriptionStatus: session.user.subscriptionStatus as any,
           subscriptionType: session.user.subscriptionType as any,
-        });
+          isAdmin: (session.user as any).isAdmin,
+          role: (session.user as any).role,
+        } as any);
         
         // Store the app token for API calls
         if (session.appToken) {
@@ -77,36 +79,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('✅ Auth successful, user data:', data.user);
         setUser(data.user);
       } else {
-        console.log('❌ Auth failed, removing token');
-        localStorage.removeItem('token');
-        localStorage.removeItem('returnUrl');
+        console.log('❌ Auth failed, status:', response.status);
+        // Only remove token if it's actually invalid (401), not on network errors
+        if (response.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('returnUrl');
+        }
       }
     } catch (error) {
       console.error('❌ Auth check failed:', error);
-      localStorage.removeItem('token');
-      localStorage.removeItem('returnUrl');
+      // Don't remove token on network errors - keep it for retry
+      // Only remove on actual auth failures (handled in response.status check above)
     } finally {
       console.log('🏁 Setting auth loading to false');
       setLoading(false);
     }
   };
 
-  const login = (token: string) => {
+  const login = (token: string, redirectUrl?: string) => {
     localStorage.setItem('token', token);
-    checkAuth();
     
-    // Get return URL or default to signals page
-    const returnUrl = localStorage.getItem('returnUrl') || '/signals';
+    // Use provided redirect URL, or get return URL, or default to signals page
+    const destination = redirectUrl || localStorage.getItem('returnUrl') || '/signals';
     localStorage.removeItem('returnUrl');
     
-    // Redirect to previous page or signals
-    window.location.href = returnUrl;
+    // Redirect to the appropriate page (auth will be checked on page load)
+    window.location.href = destination;
   };
 
-  const logout = () => {
+  const logout = async () => {
+    // Clear all localStorage items related to auth
     localStorage.removeItem('token');
     localStorage.removeItem('returnUrl');
+    
+    // Sign out from NextAuth session
+    await signOut({ redirect: false });
+    
+    // Clear user state
     setUser(null);
+    
+    // Clear any browser cache for auth endpoints
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(
+        cacheNames.map(cacheName => caches.delete(cacheName))
+      );
+    }
   };
 
   useEffect(() => {
@@ -117,35 +135,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [session, status]);
 
   useEffect(() => {
-    // Store current URL before page refresh (only on client)
-    if (typeof window !== 'undefined') {
-      // Set return URL if user is being redirected
-      const handleBeforeUnload = () => {
-        if (user) {
-          localStorage.setItem('returnUrl', window.location.pathname);
-        }
-      };
-      
-      window.addEventListener('beforeunload', handleBeforeUnload);
-      
-      checkAuth();
-      
-      return () => {
-        window.removeEventListener('beforeunload', handleBeforeUnload);
-      };
-    }
+    // Check auth on mount
+    checkAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Redirect to previous page after auth check completes
-  useEffect(() => {
-    if (!loading && user) {
-      const returnUrl = localStorage.getItem('returnUrl');
-      if (returnUrl && returnUrl !== window.location.pathname) {
-        localStorage.removeItem('returnUrl');
-        window.location.href = returnUrl;
-      }
-    }
-  }, [loading, user]);
 
   return (
     <AuthContext.Provider value={{ user, loading, login, logout, checkAuth }}>

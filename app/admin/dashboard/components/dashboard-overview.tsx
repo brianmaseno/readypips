@@ -29,7 +29,7 @@ export default function DashboardOverview({ admin }: { admin: any }) {
 
   const fetchDashboardData = async () => {
     try {
-      const token = localStorage.getItem('admin_token');
+      const token = localStorage.getItem('token');
       if (!token) return;
 
       const [statsRes, usersRes] = await Promise.all([

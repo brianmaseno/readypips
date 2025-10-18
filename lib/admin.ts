@@ -113,8 +113,12 @@ export function generateAdminToken(adminId: string): string {
 export function verifyAdminToken(token: string): { adminId: string } | null {
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as any;
+    // Accept both admin tokens (type: "admin") and regular tokens (userId)
     if (decoded.type === "admin") {
       return { adminId: decoded.adminId };
+    } else if (decoded.userId) {
+      // Regular token - return userId as adminId (will be verified as admin in findAdminById)
+      return { adminId: decoded.userId };
     }
     return null;
   } catch {

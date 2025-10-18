@@ -80,8 +80,10 @@ export default function SignalsPage() {
 
   // Check authentication
   useEffect(() => {
+    // Only redirect if auth is not loading AND user is null
     if (!authLoading && !user) {
-      router.push('/login');
+      console.log('🔒 Not authenticated, redirecting to login');
+      router.push('/login?redirect=/signals');
     }
   }, [user, authLoading, router]);
 

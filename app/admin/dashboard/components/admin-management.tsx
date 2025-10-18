@@ -35,7 +35,7 @@ export default function AdminManagement({ admin: currentAdmin }: { admin: any })
 
   const fetchAdmins = async () => {
     try {
-      const token = localStorage.getItem('admin_token');
+      const token = localStorage.getItem('token');
       if (!token) return;
 
       const response = await fetch('/api/admin/admins', {
@@ -61,7 +61,7 @@ export default function AdminManagement({ admin: currentAdmin }: { admin: any })
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('admin_token');
+      const token = localStorage.getItem('token');
       if (!token) return;
 
       const method = editingId ? 'PUT' : 'POST';
@@ -117,7 +117,7 @@ export default function AdminManagement({ admin: currentAdmin }: { admin: any })
     if (!window.confirm('Are you sure you want to delete this admin?')) return;
 
     try {
-      const token = localStorage.getItem('admin_token');
+      const token = localStorage.getItem('token');
       if (!token) return;
 
       const response = await fetch(`/api/admin/admins/${adminId}`, {

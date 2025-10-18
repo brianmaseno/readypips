@@ -23,6 +23,7 @@ export default function LoginPage() {
   const [isEmailVerificationError, setIsEmailVerificationError] = useState(false);
   const [isResendingVerification, setIsResendingVerification] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading, login } = useAuth();
@@ -32,11 +33,15 @@ export default function LoginPage() {
 
   // Redirect if user is already authenticated
   useEffect(() => {
-    if (!authLoading && user) {
-      console.log('✅ User already authenticated, redirecting to:', redirectTo);
-      router.push(redirectTo);
+    if (!authLoading && user && !isRedirecting) {
+      // Check if user is an admin
+      const isAdmin = (user as any).isAdmin || (user as any).role === 'super_admin' || (user as any).role === 'admin';
+      const destination = isAdmin ? '/admin/dashboard' : redirectTo;
+      console.log('✅ User already authenticated, redirecting to:', destination);
+      setIsRedirecting(true);
+      router.replace(destination);
     }
-  }, [user, authLoading, router, redirectTo]);
+  }, [user, authLoading, router, redirectTo, isRedirecting]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,14 +61,15 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        login(data.token);
         toast.success('Welcome back!');
         
-        // Check if admin email and redirect to admin dashboard
-        if (formData.email === 'admin@readypips.com') {
-          router.push('/admin/dashboard');
+        // Check if user is admin and redirect accordingly
+        if (data.user?.isAdmin || data.user?.role) {
+          console.log('Admin user detected, redirecting to admin dashboard');
+          login(data.token, '/admin/dashboard');
         } else {
-          router.push(redirectTo);
+          console.log('Regular user detected, redirecting to:', redirectTo);
+          login(data.token, redirectTo);
         }
       } else {
         const errorMessage = data.error || 'Login failed';

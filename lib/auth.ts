@@ -91,6 +91,30 @@ export async function findUser(email: string): Promise<User | null> {
 export async function findUserById(id: string): Promise<User | null> {
   const db = await getDatabase();
   const { ObjectId } = require("mongodb");
+  
+  // Check admins collection first
+  const admin = await db.collection("admins").findOne({ _id: new ObjectId(id) });
+  if (admin) {
+    return {
+      _id: admin._id.toString(),
+      email: admin.email,
+      password: admin.password,
+      firstName: admin.firstName,
+      lastName: admin.lastName,
+      phoneNumber: admin.phoneNumber,
+      subscriptionStatus: "active" as any, // Admins always have active status
+      subscriptionType: null,
+      emailVerified: true,
+      provider: admin.provider || "credentials",
+      createdAt: admin.createdAt,
+      updatedAt: admin.updatedAt,
+      isAdmin: true,
+      role: admin.role,
+      permissions: admin.permissions,
+    } as any;
+  }
+  
+  // Check users collection
   const user = await db.collection("users").findOne({ _id: new ObjectId(id) });
   if (!user) return null;
 
