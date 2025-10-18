@@ -233,14 +233,9 @@ export function Navigation() {
           <Link href="/" className="flex items-center">
             <div className="relative h-8">
               <img
-                src="/logo-light.png"
-                alt="Ready Pips Logo"
-                className="h-8 w-auto dark:hidden"
-              />
-              <img
                 src="/logo-dark.png"
                 alt="Ready Pips Logo"
-                className="h-8 w-auto hidden dark:block"
+                className="h-8 w-auto"
               />
             </div>
           </Link>

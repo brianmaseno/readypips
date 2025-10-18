@@ -5,10 +5,16 @@ if (!process.env.MONGODB_URI) {
 }
 
 const uri = process.env.MONGODB_URI;
+console.log('[MongoDB] URI from env:', uri.substring(0, 50) + '...');
+console.log('[MongoDB] Connecting to:', uri.includes('mongodb+srv') ? 'MongoDB Atlas' : 'Local MongoDB');
+
 const options = {
   maxPoolSize: 10,
-  serverSelectionTimeoutMS: 5000,
+  serverSelectionTimeoutMS: 10000,  // Increased from 5000
   socketTimeoutMS: 45000,
+  connectTimeoutMS: 10000,  // Added
+  retryWrites: true,
+  retryReads: true,
 };
 
 let client: MongoClient;
@@ -32,7 +38,13 @@ if (process.env.NODE_ENV === "development") {
 export default clientPromise;
 
 export async function getDatabase(): Promise<Db> {
-  const client = await clientPromise;
-  const dbName = process.env.MONGODB_DB_NAME || "ready-pips";
-  return client.db(dbName);
+  try {
+    const client = await clientPromise;
+    const dbName = process.env.MONGODB_DB_NAME || "ready-pips";
+    console.log('[MongoDB] Successfully connected to database:', dbName);
+    return client.db(dbName);
+  } catch (error) {
+    console.error('[MongoDB] Connection error:', error);
+    throw error;
+  }
 }

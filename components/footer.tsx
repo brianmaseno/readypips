@@ -119,7 +119,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
               <li>
                 <a
-                  href="mailto:brianmayoga@gmail.com"
+                  href="mailto:info@readypips.com"
                   className="hover:text-green-600 transition-colors"
                 >
                   Email Support
@@ -149,14 +149,14 @@ export function Footer() {
                 <Heart className="w-4 h-4 inline text-red-600" /> for traders.
               </p>
               <p className="mt-2">
-                Developed by{" "}
+                Developed and maintained by{" "}
                 <a
                   href="https://www.maxson.co.ke/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-green-600 hover:text-green-700 font-semibold transition-colors"
                 >
-                  Maxson Limited
+                  Maxson Programming Limited
                 </a>
               </p>
             </div>

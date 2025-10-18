@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { SignalServiceProvider } from "@/components/signal-service-provider";
 import { AuthProvider } from "@/components/auth-context";
 import { FloatingWhatsApp } from "@/components/floating-whatsapp";
+import ClientSessionProvider from "@/components/client-session-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -153,12 +154,14 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <AuthProvider>
-            <SignalServiceProvider />
-            {children}
-            <Toaster />
-            <FloatingWhatsApp />
-          </AuthProvider>
+          <ClientSessionProvider>
+            <AuthProvider>
+              <SignalServiceProvider />
+              {children}
+              <Toaster />
+              <FloatingWhatsApp />
+            </AuthProvider>
+          </ClientSessionProvider>
         </ThemeProvider>
       </body>
     </html>

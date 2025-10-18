@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useSession } from 'next-auth/react';
 
 interface User {
   _id: string;
@@ -25,10 +26,34 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { data: session, status } = useSession();
 
   const checkAuth = async () => {
     try {
       console.log('🔐 Checking authentication...');
+      
+      // Check NextAuth session first
+      if (session?.user) {
+        console.log('✅ NextAuth session found:', session.user);
+        setUser({
+          _id: session.user.id,
+          email: session.user.email,
+          firstName: session.user.firstName,
+          lastName: session.user.lastName,
+          subscriptionStatus: session.user.subscriptionStatus as any,
+          subscriptionType: session.user.subscriptionType as any,
+        });
+        
+        // Store the app token for API calls
+        if (session.appToken) {
+          localStorage.setItem('token', session.appToken);
+        }
+        
+        setLoading(false);
+        return;
+      }
+      
+      // Fall back to regular token check
       const token = localStorage.getItem('token');
       if (!token) {
         console.log('❌ No token found in localStorage');
@@ -83,6 +108,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('returnUrl');
     setUser(null);
   };
+
+  useEffect(() => {
+    // If session status changes, re-check auth
+    if (status !== 'loading') {
+      checkAuth();
+    }
+  }, [session, status]);
 
   useEffect(() => {
     // Store current URL before page refresh (only on client)

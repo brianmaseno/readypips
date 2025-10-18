@@ -430,19 +430,14 @@ export default function HomePage() {
               <div className="flex items-center mb-4">
                 <div className="relative h-8">
                   <img
-                    src="/logo-light.png"
-                    alt="Ready Pips Logo"
-                    className="h-8 w-auto dark:hidden"
-                  />
-                  <img
                     src="/logo-dark.png"
                     alt="Ready Pips Logo"
-                    className="h-8 w-auto hidden dark:block"
+                    className="h-8 w-auto"
                   />
                 </div>
               </div>
               <p className="text-gray-400">
-                Advanced trading signals powered by AI technology.
+                Unlock Powerful AI-Driven Trading Signals for a Competitive Edge
               </p>
             </div>
             <div>
@@ -499,14 +494,14 @@ export default function HomePage() {
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
             <p>&copy; 2025 Ready Pips. All rights reserved.</p>
             <p className="mt-2">
-              Developed by{" "}
+              Developed and maintained by{" "}
               <a
                 href="https://www.maxson.co.ke/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-green-400 hover:text-green-300 font-semibold transition-colors"
               >
-                Maxson Limited
+                Maxson Programming Limited
               </a>
             </p>
           </div>

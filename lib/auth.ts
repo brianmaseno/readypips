@@ -16,6 +16,9 @@ export interface User {
   subscriptionEndDate?: Date;
   emailVerified?: boolean;
   emailVerifiedAt?: Date;
+  provider?: "credentials" | "google";
+  googleId?: string;
+  image?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -71,11 +74,15 @@ export async function findUser(email: string): Promise<User | null> {
     password: user.password,
     firstName: user.firstName,
     lastName: user.lastName,
+    phoneNumber: user.phoneNumber,
     subscriptionStatus: user.subscriptionStatus || "inactive",
     subscriptionType: user.subscriptionType || null,
     subscriptionEndDate: user.subscriptionEndDate,
     emailVerified: user.emailVerified || false,
     emailVerifiedAt: user.emailVerifiedAt,
+    provider: user.provider || "credentials",
+    googleId: user.googleId,
+    image: user.image,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   };
@@ -93,11 +100,15 @@ export async function findUserById(id: string): Promise<User | null> {
     password: user.password,
     firstName: user.firstName,
     lastName: user.lastName,
+    phoneNumber: user.phoneNumber,
     subscriptionStatus: user.subscriptionStatus || "inactive",
     subscriptionType: user.subscriptionType || null,
     subscriptionEndDate: user.subscriptionEndDate,
     emailVerified: user.emailVerified || false,
     emailVerifiedAt: user.emailVerifiedAt,
+    provider: user.provider || "credentials",
+    googleId: user.googleId,
+    image: user.image,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   };
