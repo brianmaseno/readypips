@@ -137,8 +137,12 @@ export default function AdminResetPassword() {
         <div className="bg-white bg-opacity-95 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full mb-4">
-              <span className="text-2xl">🔑</span>
+            <div className="flex justify-center mb-4">
+              <img 
+                src="/logo-light.png" 
+                alt="Ready Pips Logo" 
+                className="h-12 w-auto"
+              />
             </div>
             <h1 className="text-3xl font-bold text-gray-900">Reset Password</h1>
             <p className="text-gray-600 mt-2">Admin Account Recovery</p>

@@ -73,14 +73,31 @@ export default function AdminSidebar({
       <div className="p-4 border-b border-gray-800">
         <div className="flex items-center justify-between">
           {!collapsed && (
-            <div>
-              <h1 className="text-xl font-bold text-blue-400">ReadyPips</h1>
-              <p className="text-xs text-gray-400">Admin Panel</p>
+            <div className="flex items-center space-x-3">
+              <Link href="/admin/dashboard" className="flex-shrink-0">
+                <img 
+                  src="/logo-dark.png" 
+                  alt="Ready Pips Logo" 
+                  className="h-8 w-auto"
+                />
+              </Link>
+              <div>
+                <p className="text-xs text-gray-400">Admin Panel</p>
+              </div>
             </div>
+          )}
+          {collapsed && (
+            <Link href="/admin/dashboard" className="flex justify-center w-full">
+              <img 
+                src="/logo-dark.png" 
+                alt="Ready Pips" 
+                className="h-6 w-auto"
+              />
+            </Link>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1 hover:bg-gray-800 rounded"
+            className="p-1 hover:bg-gray-800 rounded flex-shrink-0"
           >
             {collapsed ? '→' : '←'}
           </button>
