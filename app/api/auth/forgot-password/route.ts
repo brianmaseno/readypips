@@ -35,6 +35,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Delete any existing reset tokens for this email
+    await prisma.passwordReset.deleteMany({
+      where: { email: user.email },
+    });
+
     // Generate reset token
     const resetToken = jwt.sign(
       { userId: user.id, email: user.email },

@@ -35,14 +35,21 @@ export default function ForgotPasswordPage() {
       const data = await response.json();
 
       if (response.ok) {
+        // Email exists and reset link sent
         setSent(true);
         toast.success("Password reset link sent to your email!");
       } else {
-        if (data.error && data.error.includes("not verified")) {
+        if (data.error && data.error.includes("verify your email")) {
           setShowVerificationNote(true);
           toast.error("Please verify your email first before resetting password");
         } else {
-          toast.error(data.error || "Failed to send reset link");
+          // For security, we still show success even if email doesn't exist
+          // But the backend won't send an email
+          if (data.message && data.message.includes("If an account")) {
+            setSent(true);
+          } else {
+            toast.error(data.error || "Failed to send reset link");
+          }
         }
       }
     } catch (error) {

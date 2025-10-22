@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
+import { Lock, Eye, EyeOff, CheckCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
@@ -17,6 +17,7 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [token, setToken] = useState("");
+  const [tokenError, setTokenError] = useState(false);
   
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -24,8 +25,11 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     const tokenParam = searchParams.get("token");
     if (!tokenParam) {
-      toast.error("Invalid reset link");
-      router.push("/forgot-password");
+      setTokenError(true);
+      toast.error("Invalid reset link. Please request a new one.");
+      setTimeout(() => {
+        router.push("/forgot-password");
+      }, 3000);
       return;
     }
     setToken(tokenParam);
@@ -34,8 +38,8 @@ export default function ResetPasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (password.length < 8) {
-      toast.error("Password must be at least 8 characters long");
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long");
       return;
     }
 
@@ -62,8 +66,19 @@ export default function ResetPasswordPage() {
       if (response.ok) {
         setSuccess(true);
         toast.success("Password reset successfully!");
+        // Redirect to login after 2 seconds
+        setTimeout(() => {
+          router.push("/login");
+        }, 2000);
       } else {
-        toast.error(data.error || "Failed to reset password");
+        if (data.error && data.error.includes("expired")) {
+          toast.error("This reset link has expired. Please request a new one.");
+          setTimeout(() => {
+            router.push("/forgot-password");
+          }, 2000);
+        } else {
+          toast.error(data.error || "Failed to reset password");
+        }
       }
     } catch (error) {
       toast.error("An error occurred. Please try again.");
@@ -113,6 +128,50 @@ export default function ResetPasswordPage() {
     );
   }
 
+  if (tokenError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-white dark:bg-black">
+        <div className="w-full max-w-md">
+          {/* Logo */}
+          <div className="flex items-center justify-center mb-8">
+            <Link href="/" className="relative h-10">
+              <img 
+                src="/logo-light.png" 
+                alt="Ready Pips Logo" 
+                className="h-10 w-auto dark:hidden"
+              />
+              <img 
+                src="/logo-dark.png" 
+                alt="Ready Pips Logo" 
+                className="h-10 w-auto hidden dark:block"
+              />
+            </Link>
+          </div>
+
+          <Card className="bg-white dark:bg-black border-gray-200 dark:border-gray-800">
+            <CardHeader className="text-center">
+              <AlertCircle className="h-16 w-16 text-red-600 mx-auto mb-4" />
+              <CardTitle className="text-2xl text-black dark:text-white">Invalid Reset Link</CardTitle>
+              <CardDescription className="text-gray-600 dark:text-gray-400">
+                This password reset link is invalid or has expired.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+                Redirecting you to request a new reset link...
+              </p>
+              <Link href="/forgot-password" className="w-full">
+                <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+                  Request New Reset Link
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-white dark:bg-black">
       <div className="w-full max-w-md">
@@ -142,7 +201,7 @@ export default function ResetPasswordPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-black dark:text-white">New Password</label>
+                <label className="text-sm font-medium text-black dark:text-white">New Password (min. 6 characters)</label>
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
@@ -151,6 +210,7 @@ export default function ResetPasswordPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pr-10 bg-white dark:bg-black border-gray-300 dark:border-gray-600 text-black dark:text-white"
                     required
+                    minLength={6}
                   />
                   <Button
                     type="button"
@@ -178,6 +238,7 @@ export default function ResetPasswordPage() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full pr-10 bg-white dark:bg-black border-gray-300 dark:border-gray-600 text-black dark:text-white"
                     required
+                    minLength={6}
                   />
                   <Button
                     type="button"

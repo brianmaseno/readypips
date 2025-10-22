@@ -4,7 +4,7 @@ import nodemailer from 'nodemailer';
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false, // true for 465, false for other ports
+  secure: parseInt(process.env.SMTP_PORT || '587') === 465, // true for 465, false for other ports
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
@@ -121,17 +121,21 @@ export const emailTemplates = {
 // Send email function
 export const sendEmail = async ({ to, subject, html }: { to: string; subject: string; html: string }) => {
   try {
+    const fromName = process.env.SMTP_FROM_NAME || 'Ready Pips';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || 'noreply@readypips.com';
+    
     const mailOptions = {
-      from: process.env.SMTP_FROM || 'Ready Pips <noreply@readypips.com>',
+      from: `${fromName} <${fromEmail}>`,
       to,
       subject,
       html,
     };
 
     await transporter.sendMail(mailOptions);
+    console.log('✅ Email sent successfully to:', to);
     return true;
   } catch (error) {
-    console.error('Email sending failed:', error);
+    console.error('❌ Email sending failed:', error);
     return false;
   }
 };
