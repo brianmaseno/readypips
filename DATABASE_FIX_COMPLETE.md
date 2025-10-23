@@ -85,7 +85,7 @@ Created helper scripts to verify everything:
    ```
 
 3. **Test login**:
-   - Navigate to: http://localhost:3000/admin/login
+   - Navigate to: https://www.readypips.com/admin/login
    - Email: `admin@readypips.com`
    - Password: `1234567890`
    - Should redirect to: `/admin/dashboard`

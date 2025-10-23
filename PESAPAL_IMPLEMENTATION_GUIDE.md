@@ -327,4 +327,4 @@ Your PesaPal integration is now fully functional. Users can:
 npm run dev
 ```
 
-Then test by visiting: `http://localhost:3000/subscription`
+Then test by visiting: `https://www.readypips.com/subscription`

@@ -81,18 +81,18 @@ export async function POST(request: NextRequest) {
     console.log("  - NODE_ENV:", process.env.NODE_ENV);
     console.log(
       "  - Fallback URL:",
-      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+      process.env.NEXT_PUBLIC_APP_URL || "https://www.readypips.com"
     );
 
     const finalSuccessUrl =
       requestSuccessUrl ||
       `${
-        process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+        process.env.NEXT_PUBLIC_APP_URL || "https://www.readypips.com"
       }/signals/success?session_id={CHECKOUT_SESSION_ID}`;
     const finalCancelUrl =
       requestCancelUrl ||
       `${
-        process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+        process.env.NEXT_PUBLIC_APP_URL || "https://www.readypips.com"
       }/subscription`;
 
     // Ensure the success URL has the correct format

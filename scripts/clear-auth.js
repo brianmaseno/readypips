@@ -15,7 +15,7 @@ console.log('4. Refresh the page');
 
 console.log('\n🧪 Test the authentication flow:');
 console.log('1. Clear localStorage as above');
-console.log('2. Go to: http://localhost:3000/login');
+console.log('2. Go to: https://www.readypips.com/login');
 console.log('3. You should see the login form');
 console.log('4. Try registering a new account or logging in');
 

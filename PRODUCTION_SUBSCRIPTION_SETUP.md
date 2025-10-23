@@ -114,7 +114,7 @@ export function startCronJobs() {
   // Run daily at midnight
   cron.schedule('0 0 * * *', async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/subscriptions/check-expired', {
+      const response = await fetch('https://www.readypips.com/api/subscriptions/check-expired', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${process.env.CRON_SECRET}`,

@@ -128,7 +128,7 @@ async function testPaystackFunctions() {
 function testURLConstruction() {
   console.log('\n🌐 Testing URL construction...');
   
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.readypips.com';
   const successUrl = `${baseUrl}/subscription/success`;
   const redirectUrl = `${baseUrl}/signals/success?reference=test_ref_123`;
   

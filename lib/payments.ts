@@ -156,7 +156,7 @@ export async function initializePaystack(
           currency: "KES", // Kenyan Shilling
           reference: reference,
           callback_url: `${
-            process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+            process.env.NEXT_PUBLIC_APP_URL || "https://www.readypips.com"
           }/subscription/success`,
           metadata: {
             planId: planId,
@@ -298,7 +298,7 @@ export interface PesapalOrderResponse {
 // Register IPN (Instant Payment Notification) with PesaPal
 async function registerPesapalIPN(accessToken: string, baseUrl: string): Promise<string | null> {
   try {
-    const ipnUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/payments/pesapal-webhook`;
+    const ipnUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://www.readypips.com"}/api/payments/pesapal-webhook`;
     
     console.log("🔍 Registering IPN URL:", ipnUrl);
     
@@ -456,7 +456,7 @@ export async function initializePesapal(
       currency: "KES",
       amount: amount,
       description: `Ready Pips ${plan.name} Subscription`,
-      callback_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/signals/success`,
+      callback_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://www.readypips.com"}/signals/success`,
       redirect_mode: "TOP_WINDOW",
       branch: "Ready Pips - HQ",
       billing_address: {

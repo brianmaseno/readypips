@@ -221,7 +221,7 @@ Expected success output:
 ```
 
 ### Test 2: Manual Browser Test
-1. Go to http://localhost:3000/charts
+1. Go to https://www.readypips.com/charts
 2. Select a symbol
 3. Scroll to "AI Analysis & Insights"
 4. Select strategy and timeframes
@@ -279,7 +279,7 @@ import AIInsights from '@/components/ai-insights';
 ```
 
 ### For End Users:
-1. Navigate to http://localhost:3000/charts
+1. Navigate to https://www.readypips.com/charts
 2. Select a trading symbol
 3. Go to "AI Analysis & Insights" section
 4. Choose trading strategy

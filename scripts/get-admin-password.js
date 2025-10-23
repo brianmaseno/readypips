@@ -69,7 +69,7 @@ async function resetAdminPassword() {
     console.log(`🔑 Password: ${fixedPassword}`);
     console.log("───────────────────────────────────\n");
     console.log("⚠️  Please save these credentials securely!");
-    console.log("📍 Login at: http://localhost:3000/admin/login\n");
+    console.log("📍 Login at: https://www.readypips.com/admin/login\n");
 
     await client.close();
     process.exit(0);

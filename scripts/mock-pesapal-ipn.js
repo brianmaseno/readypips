@@ -63,7 +63,7 @@ async function mockPesapalIPN(orderTrackingId) {
 
     console.log('🔍 Mock IPN data:', JSON.stringify(mockIPNData, null, 2));
 
-    const response = await makeRequest('http://localhost:3000/api/payments/pesapal-webhook', mockIPNData);
+    const response = await makeRequest('https://www.readypips.com/api/payments/pesapal-webhook', mockIPNData);
 
     console.log('🔍 Webhook response status:', response.status);
     console.log('🔍 Webhook response data:', JSON.stringify(response.data, null, 2));

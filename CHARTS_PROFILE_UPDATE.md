@@ -1,7 +1,7 @@
 # Charts & Profile Update - Implementation Guide
 
 **Date:** October 16, 2025  
-**Status:** ✅ Complete and Running on `http://localhost:3000`
+**Status:** ✅ Complete and Running on `https://www.readypips.com`
 
 ## 🎯 What Was Changed
 
@@ -206,7 +206,7 @@ Returns success → Toast notification → Page refreshes
 ## 🧪 Testing Instructions
 
 ### Test 1: Charts Page - Live Data Detection
-1. Navigate to `http://localhost:3000/charts`
+1. Navigate to `https://www.readypips.com/charts`
 2. Observe the chart loads with market data
 3. **Expected:** If Alpha Vantage API is working, **no red badge** appears
 4. **Expected:** If API fails/returns mock, **red "Mock Data" badge** appears

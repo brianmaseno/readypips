@@ -253,7 +253,7 @@ npm run dev
 pnpm dev
 
 # 3. Open admin dashboard
-# Navigate to: http://localhost:3000/admin/login
+# Navigate to: https://www.readypips.com/admin/login
 # Email: admin@readypips.com
 # Password: [from seeder output]
 ```

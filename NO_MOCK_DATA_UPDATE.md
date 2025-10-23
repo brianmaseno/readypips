@@ -2,7 +2,7 @@
 
 **Date:** October 16, 2025  
 **Status:** ✅ Complete and Ready for Testing  
-**Server:** Running on `http://localhost:3000`
+**Server:** Running on `https://www.readypips.com`
 
 ## 🎯 What Was Changed
 
@@ -194,7 +194,7 @@ const fetchMarketData = useCallback(async (symbol) => {
 ## 🧪 Testing Instructions
 
 ### Test 1: Charts Page - No Mock Data Behavior
-1. Navigate to `http://localhost:3000/charts`
+1. Navigate to `https://www.readypips.com/charts`
 2. Make sure you're logged in
 3. Try selecting different symbols (Apple, Tesla, Bitcoin, Gold)
 4. **Expected for stocks (AAPL, TSLA):**
@@ -203,7 +203,7 @@ const fetchMarketData = useCallback(async (symbol) => {
 5. **NOT seeing:** Random fluctuating mock prices
 
 ### Test 2: Ticker on Landing Page
-1. Go to `http://localhost:3000` (home page)
+1. Go to `https://www.readypips.com` (home page)
 2. Look at the scrolling ticker at the top
 3. **Expected:** Apple and Tesla prices update in real-time from TradingView
 4. **Behavior:** Scrolls continuously with live market data

@@ -163,7 +163,7 @@ Add to `.env` file:
 ```env
 EMAIL_USER=your-email@gmail.com
 EMAIL_PASSWORD=your-app-specific-password
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_APP_URL=https://www.readypips.com
 ```
 
 For Gmail, you'll need to:

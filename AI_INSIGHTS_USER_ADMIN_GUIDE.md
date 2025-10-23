@@ -37,7 +37,7 @@
 
 ### Monitoring AI System Health
 
-**Admin Dashboard**: `http://localhost:3000/admin/ai-insights`
+**Admin Dashboard**: `https://www.readypips.com/admin/ai-insights`
 
 #### Dashboard Overview
 
@@ -349,9 +349,9 @@ Overall Status: 🟢 ALL TESTS PASSED
 
 ## Resources
 
-- **Admin Dashboard**: `http://localhost:3000/admin/ai-insights`
-- **Metrics API**: `http://localhost:3000/api/ai-insights/metrics`
-- **Recent Analyses**: `http://localhost:3000/api/ai-insights/recent`
+- **Admin Dashboard**: `https://www.readypips.com/admin/ai-insights`
+- **Metrics API**: `https://www.readypips.com/api/ai-insights/metrics`
+- **Recent Analyses**: `https://www.readypips.com/api/ai-insights/recent`
 - **Comprehensive Documentation**: `AI_INSIGHTS_GEMINI_VERIFICATION.md`
 - **Quick Reference**: `AI_INSIGHTS_VERIFICATION_SUMMARY.md`
 - **Full Test Suite**: `scripts/test-ai-comprehensive.js`

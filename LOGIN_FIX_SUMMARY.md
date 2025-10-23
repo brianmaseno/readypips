@@ -152,7 +152,7 @@ npm run dev
 ```
 
 ### Step 3: Login
-- Navigate to: http://localhost:3000/admin/login
+- Navigate to: https://www.readypips.com/admin/login
 - Email: `admin@readypips.com`
 - Password: `[From step 1 output]`
 - Click "Sign In"
@@ -205,7 +205,7 @@ All login issues should now be resolved with:
    ```bash
    node scripts/get-admin-password.js
    npm run dev
-   # Navigate to http://localhost:3000/admin/login
+   # Navigate to https://www.readypips.com/admin/login
    ```
 
 2. **Verify Dashboard:**

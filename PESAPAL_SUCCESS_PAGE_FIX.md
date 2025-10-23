@@ -64,7 +64,7 @@ if (response.status === 401) {
 
 1. **Make sure you're logged in:**
    ```
-   Visit: http://localhost:3000/login
+   Visit: https://www.readypips.com/login
    Login with your credentials
    ```
 
@@ -75,7 +75,7 @@ if (response.status === 401) {
 
 3. **Go to subscription page:**
    ```
-   Visit: http://localhost:3000/subscription
+   Visit: https://www.readypips.com/subscription
    ```
 
 4. **Select a plan and pay with Pesapal:**
@@ -85,7 +85,7 @@ if (response.status === 401) {
 
 5. **After payment, you'll be redirected to:**
    ```
-   http://localhost:3000/signals/success?OrderTrackingId=xxx&OrderMerchantReference=xxx
+   https://www.readypips.com/signals/success?OrderTrackingId=xxx&OrderMerchantReference=xxx
    ```
 
 6. **What should happen:**
@@ -334,7 +334,7 @@ If you still encounter issues:
    - Check for database connection errors
 
 3. **Manual Verification:**
-   - Visit: `http://localhost:3000/signals`
+   - Visit: `https://www.readypips.com/signals`
    - Check if subscription shows as active
    - Try accessing premium signals
 

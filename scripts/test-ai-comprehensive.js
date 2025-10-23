@@ -11,7 +11,7 @@
  * 5. Verifies parse failure tracking
  */
 
-const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
+const BASE_URL = process.env.BASE_URL || "https://www.readypips.com";
 
 async function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));

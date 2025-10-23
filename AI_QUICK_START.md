@@ -11,7 +11,7 @@ You asked me to "ensure the Gemini or AI does what it is supposed to do" and imp
 
 ### Access the Admin Dashboard
 ```
-URL: http://localhost:3000/admin/ai-insights
+URL: https://www.readypips.com/admin/ai-insights
 Purpose: Monitor system health, view metrics, see recent analyses
 Refresh: Auto-refreshes every 30 seconds
 ```
@@ -28,10 +28,10 @@ node scripts/test-ai-insights.js
 ### Check Metrics via API
 ```bash
 # Get system metrics
-curl http://localhost:3000/api/ai-insights/metrics
+curl https://www.readypips.com/api/ai-insights/metrics
 
 # Get recent analyses
-curl http://localhost:3000/api/ai-insights/recent?limit=20
+curl https://www.readypips.com/api/ai-insights/recent?limit=20
 ```
 
 ---
@@ -234,10 +234,10 @@ node scripts/test-ai-comprehensive.js
 node scripts/test-ai-insights.js
 
 # Check metrics
-curl http://localhost:3000/api/ai-insights/metrics
+curl https://www.readypips.com/api/ai-insights/metrics
 
 # Get recent analyses
-curl http://localhost:3000/api/ai-insights/recent?limit=10
+curl https://www.readypips.com/api/ai-insights/recent?limit=10
 ```
 
 ---

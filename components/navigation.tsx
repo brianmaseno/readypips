@@ -310,6 +310,22 @@ export function Navigation() {
             <div className="pt-2 border-t border-gray-200 dark:border-gray-800">
               {user ? (
                 <>
+                  {/* Profile Link */}
+                  <Link href="/profile">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <div className="w-6 h-6 rounded-full bg-green-600 text-white flex items-center justify-center font-medium text-xs mr-2">
+                        {user.firstName && user.lastName
+                          ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`
+                          : user.email.charAt(0).toUpperCase()}
+                      </div>
+                      Profile
+                    </Button>
+                  </Link>
+
                   <Button
                     variant="ghost"
                     className="w-full justify-start text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"

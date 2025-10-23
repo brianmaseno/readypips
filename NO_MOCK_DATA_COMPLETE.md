@@ -2,7 +2,7 @@
 
 **Date:** October 16, 2025  
 **Status:** ✅ **PRODUCTION READY**  
-**Server:** Running at `http://localhost:3000`  
+**Server:** Running at `https://www.readypips.com`  
 **Last Updated:** Real-time data verified from Alpha Vantage
 
 ---
@@ -195,13 +195,13 @@ User can make informed decisions ✅
 ## 🔗 Access Points
 
 **Home Page (with ticker):**
-- http://localhost:3000
+- https://www.readypips.com
 
 **Charts Page (no mock data):**
-- http://localhost:3000/charts (when logged in)
+- https://www.readypips.com/charts (when logged in)
 
 **Profile Page:**
-- http://localhost:3000/profile (when logged in)
+- https://www.readypips.com/profile (when logged in)
 
 ---
 
@@ -256,7 +256,7 @@ UI shows:
 
 **Or check API directly:**
 ```bash
-curl http://localhost:3000/api/market-data?symbol=AAPL
+curl https://www.readypips.com/api/market-data?symbol=AAPL
 ```
 
 Should show: Real data with `lastUpdated` field (not random numbers)
