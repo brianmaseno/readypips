@@ -70,8 +70,8 @@ export async function createUser(
     ...userData,
     password: hashedPassword,
     // Default to free plan for all new users with 3-day trial
-    subscriptionStatus: "active",
-    subscriptionType: "free",
+    subscriptionStatus: "active" as "active" | "inactive" | "expired",
+    subscriptionType: "free" as "free" | "basic" | "premium" | "pro" | null,
     subscriptionEndDate: null,
     freeTrialEndDate, // 3-day free trial
     createdAt: new Date(),
