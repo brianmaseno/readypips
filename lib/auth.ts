@@ -72,7 +72,7 @@ export async function createUser(
     // Default to free plan for all new users with 3-day trial
     subscriptionStatus: "active" as "active" | "inactive" | "expired",
     subscriptionType: "free" as "free" | "basic" | "premium" | "pro" | null,
-    subscriptionEndDate: null,
+    subscriptionEndDate: undefined,
     freeTrialEndDate, // 3-day free trial
     createdAt: new Date(),
     updatedAt: new Date(),
