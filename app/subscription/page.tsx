@@ -24,12 +24,15 @@ import {
 import { useRouter } from "next/navigation";
 import { Navigation } from "@/components/navigation";
 import PricingPlans from "@/components/pricing-plans";
+import { toast } from "sonner";
 
 type PaymentProvider = "stripe" | "paystack" | "pesapal";
 
 export default function SubscriptionPage() {
   const [loading, setLoading] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<string | null>(null);
+  const [currentEndDate, setCurrentEndDate] = useState<string | null>(null);
+  const [hasPendingSubscription, setHasPendingSubscription] = useState(false);
   const [selectedProvider, setSelectedProvider] =
     useState<PaymentProvider>("pesapal");
   const router = useRouter();
@@ -38,35 +41,66 @@ export default function SubscriptionPage() {
     // Check if user has an active subscription
     const token = localStorage.getItem("token");
     if (token) {
-      fetch("/api/dashboard", {
+      // Fetch subscription status
+      fetch("/api/subscriptions/status", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
         .then((res) => res.json())
         .then((data) => {
-          if (data.user?.subscriptionStatus === "active") {
-            setCurrentPlan(data.user.subscriptionType);
+          if (data.success && data.subscription) {
+            setCurrentPlan(data.subscription.type);
+            setCurrentEndDate(data.subscription.endDate);
+            setHasPendingSubscription(!!data.subscription.pendingSubscription);
           }
         })
-        .catch((err) => console.error("Error fetching user data:", err));
+        .catch((err) => console.error("Error fetching subscription status:", err));
     }
   }, []);
 
   const handlePlanSelect = async (plan: string) => {
-    if (currentPlan === "active") {
-      alert(
-        "You already have an active subscription. Please contact support to change your plan."
+    // Check if user is on a paid plan (not free)
+    const isOnPaidPlan = currentPlan && currentPlan !== "free" && currentEndDate;
+    
+    if (isOnPaidPlan) {
+      // Show confirmation dialog for paid plan users
+      const expiryDate = new Date(currentEndDate!).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      });
+      
+      const planNames: Record<string, string> = {
+        basic: "Weekly Plan",
+        premium: "Monthly Plan",
+        pro: "3 Months Plan"
+      };
+      
+      const currentPlanName = planNames[currentPlan] || currentPlan;
+      
+      const confirmed = confirm(
+        `You are currently on the ${currentPlanName} which expires on ${expiryDate}.\n\n` +
+        `Your new subscription will be scheduled to start after your current plan expires.\n\n` +
+        `Do you want to continue?`
       );
-      return;
+      
+      if (!confirmed) {
+        return;
+      }
+
+      toast.info(`Your new plan will activate on ${expiryDate}`, {
+        duration: 5000
+      });
     }
 
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert("Please log in to subscribe");
-        router.push("/login");
+        toast.error("Please log in to subscribe to a plan");
+        // Save current page to redirect back after login
+        router.push("/login?redirect=/subscription");
         return;
       }
 
@@ -123,6 +157,25 @@ export default function SubscriptionPage() {
             Unlock powerful trading signals and advanced market analysis with
             our premium plans
           </p>
+
+          {/* Current Subscription Badge */}
+          {currentPlan && currentPlan !== "free" && (
+            <div className="mt-6 flex justify-center">
+              <Badge className="bg-green-600 text-white px-4 py-2 text-sm">
+                Current Plan: {currentPlan === "basic" ? "Weekly" : currentPlan === "premium" ? "Monthly" : "3 Months"}
+                {currentEndDate && ` • Expires ${new Date(currentEndDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`}
+              </Badge>
+            </div>
+          )}
+
+          {/* Pending Subscription Alert */}
+          {hasPendingSubscription && (
+            <div className="mt-4 max-w-xl mx-auto p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                ℹ️ You have a pending subscription that will activate when your current plan expires.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Payment Method Selection */}
@@ -147,24 +200,37 @@ export default function SubscriptionPage() {
                     >
                       <div className="flex flex-col items-center">
                         <CreditCard className="w-6 h-6 mb-1" />
-                        <span className="text-sm font-medium">Pesapal</span>
+                        <span className="text-sm font-medium">Pay with Pesapal</span>
+                        <span className="text-xs opacity-90">M-Pesa, Cards & More</span>
                       </div>
                     </Button>
                   </div>
                   
-                  {/* Pesapal Payment Options Image */}
-                  <div className="mt-4">
-                    <img 
-                      src="/pesapal-payment-options.png" 
-                      alt="Pesapal Payment Options - M-Pesa, Airtel Money, Visa, Mastercard, and more"
-                      className="mx-auto max-w-sm w-full h-auto rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
-                      onError={(e) => {
-                        // Fallback if image doesn't exist
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-                      Available payment methods: M-Pesa, Airtel Money, Visa, Mastercard, and more
+                  {/* Payment methods info */}
+                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 text-center mb-3">
+                      <strong>Available Payment Methods:</strong>
+                    </p>
+                    <div className="grid grid-cols-2 gap-2 text-xs text-gray-700 dark:text-gray-300">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-green-600">✓</span>
+                        <span>M-Pesa</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-green-600">✓</span>
+                        <span>Airtel Money</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-green-600">✓</span>
+                        <span>Visa Card</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-green-600">✓</span>
+                        <span>Mastercard</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 text-center">
+                      💳 Secure payments powered by PesaPal
                     </p>
                   </div>
                 </div>
@@ -241,7 +307,7 @@ export default function SubscriptionPage() {
                     How do I get started?
                   </h4>
                   <p className="text-gray-600 dark:text-gray-400">
-                    Choose your plan, select your payment method, and you'll
+                    Choose your plan, select your payment method, and you&apos;ll
                     have immediate access to our trading signals and analysis
                     tools.
                   </p>

@@ -39,8 +39,14 @@ interface UserData {
 
 function SubscriptionSuccessContent() {
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get("session_id");
-  const reference = searchParams.get("reference");
+  const router = useRouter();
+  
+  // Support multiple payment providers' callback parameters
+  const sessionId = searchParams.get("session_id"); // Stripe
+  const reference = searchParams.get("reference"); // Paystack
+  const orderTrackingId = searchParams.get("OrderTrackingId"); // Pesapal
+  const merchantReference = searchParams.get("OrderMerchantReference"); // Pesapal
+  
   const { user: authUser, checkAuth } = useAuth();
   const [subscriptionData, setSubscriptionData] = useState<SubscriptionData | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -51,9 +57,12 @@ function SubscriptionSuccessContent() {
       console.log("🔍 [Subscription Success] useEffect triggered");
       console.log("🔍 [Subscription Success] sessionId:", sessionId);
       console.log("🔍 [Subscription Success] reference:", reference);
+      console.log("🔍 [Subscription Success] orderTrackingId:", orderTrackingId);
+      console.log("🔍 [Subscription Success] merchantReference:", merchantReference);
       console.log("🔍 [Subscription Success] authUser:", authUser);
 
-      const paymentId = sessionId || reference;
+      // Determine payment ID based on provider
+      const paymentId = sessionId || reference || orderTrackingId;
       console.log("🔍 [Subscription Success] Payment ID determined:", paymentId);
 
       if (paymentId) {
@@ -137,7 +146,14 @@ function SubscriptionSuccessContent() {
       }
 
       // Determine provider from payment ID format
-      const provider = paymentId.startsWith("cs_") ? "stripe" : "paystack";
+      let provider: string;
+      if (paymentId.startsWith("cs_")) {
+        provider = "stripe";
+      } else if (orderTrackingId) {
+        provider = "pesapal";
+      } else {
+        provider = "paystack";
+      }
       console.log("🔍 [Subscription Success] Provider determined:", provider);
 
       const requestBody = {
@@ -159,29 +175,47 @@ function SubscriptionSuccessContent() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("🔍 [Subscription Success] Success response:", data);
+        console.log("✅ [Subscription Success] Success response:", data);
+        
+        // Set subscription and user data
         setSubscriptionData(data.payment);
         setUserData(data.user);
-        toast.success("Subscription verified successfully!");
         
         // Refresh auth context to get updated user data
+        console.log("🔍 [Subscription Success] Refreshing auth context...");
         await checkAuth();
+        
+        toast.success("🎉 Subscription activated successfully!");
+        console.log("✅ [Subscription Success] Verification complete!");
       } else {
         const errorData = await response.json();
-        console.error("🔍 [Subscription Success] Error response:", errorData);
+        console.error("❌ [Subscription Success] Error response:", errorData);
+
+        // If 401, the token might be invalid - try to refresh auth
+        if (response.status === 401) {
+          console.log("⚠️ [Subscription Success] Token invalid, attempting to refresh auth...");
+          await checkAuth();
+          
+          // Retry verification with refreshed token
+          const newToken = localStorage.getItem("token");
+          if (newToken && newToken !== token) {
+            console.log("� [Subscription Success] Retrying with refreshed token...");
+            return verifySubscription(paymentId);
+          }
+        }
 
         // If verification fails, show error
-        toast.error(errorData.error || "Failed to verify subscription");
+        toast.error(errorData.error || "Failed to verify subscription. Please contact support.");
         setLoading(false);
         return;
       }
     } catch (error) {
       console.error("❌ [Subscription Success] Verification error:", error);
-      toast.error("Network error. Please try again.");
+      toast.error("Network error during verification. Please refresh the page or contact support.");
       setLoading(false);
       return;
     } finally {
-      console.log("🔍 [Subscription Success] Verification process completed");
+      console.log("🏁 [Subscription Success] Verification process completed");
       setLoading(false);
     }
   };
@@ -205,7 +239,7 @@ function SubscriptionSuccessContent() {
   if (!subscriptionData || !userData) {
     return (
       <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center max-w-md mx-auto px-4">
           <div className="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
             <Shield className="w-8 h-8 text-red-600" />
           </div>
@@ -213,11 +247,26 @@ function SubscriptionSuccessContent() {
             Verification Failed
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            We couldn't verify your subscription. Please contact support.
+            We couldn't automatically verify your subscription. Your payment may still be processing.
           </p>
-          <Button onClick={() => (window.location.href = "/dashboard")}>
-            Go to Dashboard
-          </Button>
+          <div className="space-y-3">
+            <Button 
+              className="w-full bg-green-600 hover:bg-green-700"
+              onClick={() => window.location.reload()}
+            >
+              Retry Verification
+            </Button>
+            <Button 
+              className="w-full"
+              variant="outline"
+              onClick={() => router.push("/signals")}
+            >
+              Check Dashboard
+            </Button>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
+              If the issue persists, please check your email for payment confirmation or contact support.
+            </p>
+          </div>
         </div>
       </div>
     );

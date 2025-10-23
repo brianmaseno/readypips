@@ -30,6 +30,7 @@ export const subscriptionPlans: SubscriptionPlan[] = [
       "Mobile app access",
       "Basic technical indicators",
       "Market news updates",
+      "7-day access",
     ],
     stripePriceId: "price_weekly",
     paystackPlanCode: "PLN_weekly",
@@ -50,33 +51,34 @@ export const subscriptionPlans: SubscriptionPlan[] = [
       "AI-powered insights",
       "Risk management tools",
       "Portfolio tracking",
+      "30-day access",
     ],
     stripePriceId: "price_monthly",
     paystackPlanCode: "PLN_monthly",
     pesapalPlanCode: "PES_monthly",
   },
   {
-    id: "annually",
-    name: "Annually",
-    price: 129.00,
+    id: "3months",
+    name: "3 Months",
+    price: 79.00,
     currency: "USD",
-    duration: 365,
+    duration: 90,
     features: [
       "Unlimited signals",
-      "AI-powered analysis",
-      "WhatsApp notifications",
-      "24/7 support",
-      "Custom indicators",
-      "API access",
-      "Advanced risk management",
-      "Multi-account support",
-      "Dedicated account manager",
-      "Custom strategies",
-      "2 months free (save $58)",
+      "Advanced market analysis",
+      "Real-time notifications",
+      "Priority support",
+      "Advanced technical indicators",
+      "AI-powered insights",
+      "Risk management tools",
+      "Portfolio tracking",
+      "Extended analysis",
+      "90-day access",
+      "Save $8 vs monthly",
     ],
-    stripePriceId: "price_annually",
-    paystackPlanCode: "PLN_annually",
-    pesapalPlanCode: "PES_annually",
+    stripePriceId: "price_3months",
+    paystackPlanCode: "PLN_3months",
+    pesapalPlanCode: "PES_3months",
   },
 ];
 
@@ -293,6 +295,50 @@ export interface PesapalOrderResponse {
   message?: string;
 }
 
+// Register IPN (Instant Payment Notification) with PesaPal
+async function registerPesapalIPN(accessToken: string, baseUrl: string): Promise<string | null> {
+  try {
+    const ipnUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/payments/pesapal-webhook`;
+    
+    console.log("🔍 Registering IPN URL:", ipnUrl);
+    
+    const ipnRequest = {
+      url: ipnUrl,
+      ipn_notification_type: "POST"
+    };
+    
+    const ipnResponse = await fetch(`${baseUrl}/URLSetup/RegisterIPN`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(ipnRequest),
+    });
+    
+    if (!ipnResponse.ok) {
+      console.error("❌ IPN registration failed:", ipnResponse.status);
+      return null;
+    }
+    
+    const ipnData = await ipnResponse.json();
+    console.log("🔍 IPN registration response:", ipnData);
+    
+    if (ipnData.ipn_id) {
+      console.log("✅ IPN registered successfully:", ipnData.ipn_id);
+      console.log("⚠️  IMPORTANT: Add this to your .env file:");
+      console.log(`PESAPAL_NOTIFICATION_ID=${ipnData.ipn_id}`);
+      return ipnData.ipn_id;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error("❌ Error registering IPN:", error);
+    return null;
+  }
+}
+
 export async function initializePesapal(
   planId: string,
   userEmail: string,
@@ -306,13 +352,16 @@ export async function initializePesapal(
     throw new Error("Invalid plan ID");
   }
 
-  // Test mode: Use 10 KES for all packages during testing
-  const isTestMode = process.env.NODE_ENV === 'development' || process.env.PESAPAL_TEST_MODE === 'true';
-  const testAmount = 10.00; // 10 KES for testing
+  // Test mode: Use configurable test amount for all packages during testing
+  const isTestMode = process.env.PESAPAL_TEST_MODE === 'true';
+  const testAmount = parseFloat(process.env.PESAPAL_TEST_AMOUNT || '5'); // Default 5 KES for testing
+  const originalAmount = amount;
   
   if (isTestMode) {
     console.log(`🧪 [Pesapal Test Mode] Using ${testAmount} KES instead of ${amount} KES for ${plan.name} package`);
     amount = testAmount;
+  } else {
+    console.log(`💰 [Pesapal Production] Processing ${amount} KES for ${plan.name} package`);
   }
 
   // Check if Pesapal credentials are available
@@ -383,7 +432,11 @@ export async function initializePesapal(
       const errorMessage = tokenData.error.message || 'No error message provided';
       
       if (errorCode === 'invalid_consumer_key_or_secret_provided') {
-        throw new Error("Invalid Pesapal credentials. Please check your Consumer Key and Consumer Secret. Make sure you're using sandbox credentials for testing.");
+        console.error('❌ Invalid PesaPal credentials!');
+        console.error('Consumer Key:', process.env.PESAPAL_CONSUMER_KEY?.substring(0, 10) + '...');
+        console.error('Using Production:', isProduction);
+        console.error('Base URL:', baseUrl);
+        throw new Error(`Invalid PesaPal credentials. Using ${isProduction ? 'PRODUCTION' : 'SANDBOX'} mode. Please verify your Consumer Key and Secret match the mode you're using.`);
       } else {
         throw new Error(`Pesapal API error: ${errorCode} - ${errorMessage}`);
       }
@@ -415,16 +468,30 @@ export async function initializePesapal(
       },
     };
 
-    // Only add notification_id if it's a valid UUID (not a placeholder)
-    const notificationId = process.env.PESAPAL_NOTIFICATION_ID;
-    if (notificationId && 
+    // Handle notification_id (IPN)
+    let notificationId = process.env.PESAPAL_NOTIFICATION_ID;
+    
+    // Validate existing notification_id
+    const isValidUUID = notificationId && 
         notificationId !== "your_pesapal_notification_id" && 
         notificationId !== "" &&
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(notificationId)) {
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(notificationId);
+    
+    if (!isValidUUID) {
+      console.log("⚠️  No valid notification_id found. Attempting to register new IPN...");
+      const newIpnId = await registerPesapalIPN(accessToken, baseUrl);
+      if (newIpnId) {
+        notificationId = newIpnId;
+      }
+    }
+    
+    // Only add notification_id to request if we have a valid one
+    if (isValidUUID || notificationId) {
       orderRequest.notification_id = notificationId;
-      console.log("🔍 Using valid notification_id:", notificationId);
+      console.log("🔍 Using notification_id:", notificationId);
     } else {
-      console.log("🔍 No notification_id configured - IPN notifications disabled");
+      console.log("⚠️  Proceeding without notification_id - IPN notifications will be disabled");
+      console.log("⚠️  You can register an IPN later in your PesaPal dashboard");
     }
 
     console.log("🔍 Creating Pesapal order with data:", orderRequest);

@@ -127,8 +127,9 @@ export default function SignalsPage() {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        toast.error("Please log in to subscribe");
-        router.push("/login");
+        toast.error("Please log in to subscribe to a plan");
+        // Save current page to redirect back after login
+        router.push("/login?redirect=/signals");
         return;
       }
 

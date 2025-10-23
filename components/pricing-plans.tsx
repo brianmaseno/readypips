@@ -25,7 +25,9 @@ const plans = [
   {
     name: "Weekly",
     price: "$13",
+    priceKES: "KES 1,690",
     period: "/week",
+    duration: 7,
     features: [
       "15 signals per day",
       "Basic market analysis",
@@ -33,13 +35,22 @@ const plans = [
       "Mobile app access",
       "Basic technical indicators",
       "Market news updates",
+      "7-day access",
+    ],
+    benefits: [
+      "Perfect for testing our service",
+      "No long-term commitment",
+      "Full signal access during trial",
+      "Email support available",
     ],
     popular: false,
   },
   {
     name: "Monthly",
     price: "$29",
+    priceKES: "KES 3,770",
     period: "/month",
+    duration: 30,
     features: [
       "35 signals per day",
       "Advanced market analysis",
@@ -49,13 +60,23 @@ const plans = [
       "AI-powered insights",
       "Risk management tools",
       "Portfolio tracking",
+      "30-day access",
+    ],
+    benefits: [
+      "Most popular choice",
+      "Best value for active traders",
+      "Priority customer support",
+      "Advanced AI analysis included",
+      "All premium features unlocked",
     ],
     popular: true,
   },
   {
     name: "3 Months",
     price: "$79",
+    priceKES: "KES 10,270",
     period: "/3 months",
+    duration: 90,
     features: [
       "Unlimited signals",
       "Advanced market analysis",
@@ -66,6 +87,15 @@ const plans = [
       "Risk management tools",
       "Portfolio tracking",
       "Extended analysis",
+      "90-day access",
+      "Save $8 vs monthly!",
+    ],
+    benefits: [
+      "Best value for serious traders",
+      "Extended commitment = better results",
+      "Priority customer support",
+      "All premium features included",
+      "Save money vs monthly billing",
     ],
     popular: false,
   },
@@ -134,16 +164,39 @@ export default function PricingPlans({
             </div>
           </CardHeader>
 
-          <CardContent className="flex-1 flex flex-col justify-end space-y-4">
-            {/* Features are hidden for now */}
-            {/* <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-              {plan.features.map((feature, featureIndex) => (
-                <li key={featureIndex} className="flex items-center">
-                  <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                  {feature}
-                </li>
-              ))}
-            </ul> */}
+          <CardContent className="flex-1 flex flex-col space-y-4">
+            {/* Features List */}
+            <div className="flex-1">
+              <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">Features:</h4>
+              <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 mb-4">
+                {plan.features.slice(0, 6).map((feature, featureIndex) => (
+                  <li key={featureIndex} className="flex items-start">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+              
+              {/* Benefits Section */}
+              <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 mb-4">
+                <h4 className="font-semibold text-sm text-green-800 dark:text-green-300 mb-2">Package Benefits:</h4>
+                <ul className="space-y-1 text-xs text-green-700 dark:text-green-200">
+                  {(plan as any).benefits?.map((benefit: string, idx: number) => (
+                    <li key={idx} className="flex items-start">
+                      <span className="text-green-600 mr-1">✓</span>
+                      <span>{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              {/* Duration Badge */}
+              <div className="flex items-center justify-center mb-2">
+                <Badge variant="outline" className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700">
+                  {(plan as any).duration} days of access
+                </Badge>
+              </div>
+            </div>
 
             {showGetStarted ? (
               <Link href="/register">

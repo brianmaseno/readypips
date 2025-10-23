@@ -26,23 +26,6 @@ export async function POST(request: NextRequest) {
     const db = await getDatabase();
     const userId = new ObjectId(decoded.userId);
 
-    // Check if user already has an active subscription
-    const existingUser = await db.collection("users").findOne({
-      _id: userId,
-      subscriptionStatus: "active",
-    });
-
-    if (existingUser) {
-      return NextResponse.json(
-        {
-          error:
-            "You already have an active subscription. Please contact support to change your plan.",
-          hasActiveSubscription: true,
-        },
-        { status: 400 }
-      );
-    }
-
     // Map plan names to subscription plan IDs
     const planMapping: Record<string, string> = {
       weekly: "weekly",

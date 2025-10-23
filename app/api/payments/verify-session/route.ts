@@ -208,10 +208,40 @@ export async function POST(request: NextRequest) {
         paymentData = pesapalData;
         console.log('🔍 [Verify Session] Pesapal data:', pesapalData);
 
-        if (pesapalData.payment_status === "COMPLETED") {
+        // Check payment status (can be in different fields)
+        const isCompleted = 
+          pesapalData.payment_status === "COMPLETED" || 
+          pesapalData.payment_status_description?.toLowerCase() === "completed" ||
+          pesapalData.status_code === 1;
+
+        console.log('🔍 [Verify Session] Payment completed check:', {
+          payment_status: pesapalData.payment_status,
+          payment_status_description: pesapalData.payment_status_description,
+          status_code: pesapalData.status_code,
+          isCompleted
+        });
+
+        if (isCompleted) {
           status = "completed";
-          planId = pesapalData.merchant_reference?.split('_')[1] || "";
-          planName = `${planId.charAt(0).toUpperCase() + planId.slice(1)} Plan`;
+          
+          // Extract plan ID from merchant reference (format: ref_timestamp_randomstring)
+          // We need to look up the payment record to get the actual planId
+          const db = await getDatabase();
+          const existingPayment = await db.collection("payments").findOne({ sessionId });
+          
+          if (existingPayment) {
+            planId = existingPayment.planId || "";
+            planName = existingPayment.planName || "Subscription";
+            console.log('🔍 [Verify Session] Found existing payment record:', {
+              planId: existingPayment.planId,
+              planName: existingPayment.planName
+            });
+          } else {
+            // Fallback: try to extract from merchant reference
+            planId = pesapalData.merchant_reference?.split('_')[1] || "";
+            planName = `${planId.charAt(0).toUpperCase() + planId.slice(1)} Plan`;
+          }
+
           amount = pesapalData.amount;
           currency = pesapalData.currency;
 
@@ -221,23 +251,99 @@ export async function POST(request: NextRequest) {
 
           // Update user subscription if payment is completed
           if (status === "completed" && planId) {
-            const subscriptionEndDate = new Date();
-            subscriptionEndDate.setDate(subscriptionEndDate.getDate() + 30);
+            // Map plan IDs to subscription types and calculate duration
+            const planMapping: Record<string, { type: "basic" | "premium" | "pro", days: number }> = {
+              "weekly": { type: "basic", days: 7 },
+              "monthly": { type: "premium", days: 30 },
+              "3months": { type: "pro", days: 90 }
+            };
 
-            await updateUserSubscription(decoded.userId, {
-              subscriptionStatus: "active",
-              subscriptionType: planId as "basic" | "premium" | "pro",
-              subscriptionEndDate,
-            });
-            console.log('✅ [Verify Session] User subscription updated');
+            const planConfig = planMapping[planId.toLowerCase()] || { type: "premium", days: 30 };
+            
+            // Get current user to check their subscription status
+            const db = await getDatabase();
+            const { ObjectId } = require("mongodb");
+            const currentUser = await db.collection("users").findOne({ _id: new ObjectId(decoded.userId) });
+            
+            if (!currentUser) {
+              console.error('❌ [Verify Session] User not found');
+            } else {
+              const currentType = currentUser.subscriptionType;
+              const currentEndDate = currentUser.subscriptionEndDate ? new Date(currentUser.subscriptionEndDate) : null;
+              const now = new Date();
+              
+              // Check if user is on a paid plan that hasn't expired
+              const isOnActivePaidPlan = 
+                currentType && 
+                currentType !== "free" && 
+                currentEndDate && 
+                currentEndDate > now;
+
+              console.log('🔍 [Verify Session] Current subscription status:', {
+                currentType,
+                currentEndDate: currentEndDate?.toISOString(),
+                isOnActivePaidPlan,
+                newPlan: planConfig.type
+              });
+
+              if (isOnActivePaidPlan) {
+                // User has active paid subscription - schedule new subscription to start after current expires
+                console.log('⏰ [Verify Session] User has active paid plan - scheduling new subscription');
+                
+                await db.collection("users").updateOne(
+                  { _id: new ObjectId(decoded.userId) },
+                  {
+                    $set: {
+                      pendingSubscription: {
+                        type: planConfig.type,
+                        planId: planId,
+                        planName: planName,
+                        duration: planConfig.days,
+                        scheduledStartDate: currentEndDate
+                      },
+                      updatedAt: new Date()
+                    }
+                  }
+                );
+                
+                console.log('✅ [Verify Session] Pending subscription scheduled to start on:', currentEndDate.toISOString());
+              } else {
+                // User is on free plan or expired plan - activate immediately
+                console.log('🚀 [Verify Session] Activating subscription immediately');
+                
+                const subscriptionStartDate = new Date();
+                const subscriptionEndDate = new Date();
+                subscriptionEndDate.setDate(subscriptionEndDate.getDate() + planConfig.days);
+
+                await updateUserSubscription(decoded.userId, {
+                  subscriptionStatus: "active",
+                  subscriptionType: planConfig.type,
+                  subscriptionStartDate,
+                  subscriptionEndDate,
+                });
+                
+                console.log('✅ [Verify Session] User subscription activated immediately!');
+              }
+            }
           }
         } else {
           status = "pending";
-          planId = pesapalData.merchant_reference?.split('_')[1] || "";
-          planName = `${planId.charAt(0).toUpperCase() + planId.slice(1)} Plan`;
+          
+          // Try to get plan info from existing payment record
+          const db = await getDatabase();
+          const existingPayment = await db.collection("payments").findOne({ sessionId });
+          
+          if (existingPayment) {
+            planId = existingPayment.planId || "";
+            planName = existingPayment.planName || "Subscription";
+          } else {
+            planId = pesapalData.merchant_reference?.split('_')[1] || "";
+            planName = `${planId.charAt(0).toUpperCase() + planId.slice(1)} Plan`;
+          }
+
           amount = pesapalData.amount;
           currency = pesapalData.currency;
-          console.log('⏳ [Verify Session] Pesapal payment pending, status:', pesapalData.payment_status);
+          console.log('⏳ [Verify Session] Pesapal payment pending, status:', pesapalData.payment_status_description);
         }
       } catch (error) {
         console.error("❌ [Verify Session] Pesapal verification error:", error);

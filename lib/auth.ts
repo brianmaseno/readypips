@@ -12,8 +12,17 @@ export interface User {
   lastName: string;
   phoneNumber?: string;
   subscriptionStatus: "active" | "inactive" | "expired";
-  subscriptionType: "basic" | "premium" | "pro" | null;
+  subscriptionType: "free" | "basic" | "premium" | "pro" | null;
   subscriptionEndDate?: Date;
+  subscriptionStartDate?: Date;
+  // Pending subscription (scheduled to activate after current expires)
+  pendingSubscription?: {
+    type: "basic" | "premium" | "pro";
+    planId: string;
+    planName: string;
+    duration: number; // days
+    scheduledStartDate: Date; // When current subscription ends
+  } | null;
   emailVerified?: boolean;
   emailVerifiedAt?: Date;
   provider?: "credentials" | "google";
@@ -55,6 +64,10 @@ export async function createUser(
   const user = {
     ...userData,
     password: hashedPassword,
+    // Default to free plan for all new users
+    subscriptionStatus: "active",
+    subscriptionType: "free",
+    subscriptionEndDate: null, // Free plan never expires
     createdAt: new Date(),
     updatedAt: new Date(),
   };

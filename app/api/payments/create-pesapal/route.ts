@@ -26,28 +26,12 @@ export async function POST(request: NextRequest) {
     const db = await getDatabase();
     const userId = new ObjectId(decoded.userId);
 
-    // Check if user already has an active subscription
-    const existingUser = await db.collection("users").findOne({
-      _id: userId,
-      subscriptionStatus: "active",
-    });
-
-    if (existingUser) {
-      return NextResponse.json(
-        {
-          error:
-            "You already have an active subscription. Please contact support to change your plan.",
-          hasActiveSubscription: true,
-        },
-        { status: 400 }
-      );
-    }
-
     // Map plan names to subscription plan IDs
     const planMapping: Record<string, string> = {
       weekly: "weekly",
       monthly: "monthly",
-      annually: "annually",
+      "3 months": "3months",
+      "3months": "3months",
     };
 
     const planId = planMapping[plan.toLowerCase()];
@@ -77,18 +61,20 @@ export async function POST(request: NextRequest) {
     try {
       console.log("🔍 [Create Pesapal] Initializing Pesapal transaction with:", {
         planId,
+        planName: subscriptionPlan.name,
+        priceUSD: subscriptionPlan.price,
+        amountInKes,
         userEmail: user.email,
-        userPhone: user.phone || "+254700000000",
+        userPhone: user.phoneNumber || user.phone || "+254700000000",
         userFirstName: user.firstName || "User",
         userLastName: user.lastName || "Name",
-        amountInKes
       });
 
       // Initialize Pesapal transaction
       const pesapalResponse = await initializePesapal(
         planId,
         user.email,
-        user.phone || "+254700000000", // Default phone if not provided
+        user.phoneNumber || user.phone || "+254700000000", // Default phone if not provided
         user.firstName || "User",
         user.lastName || "Name",
         amountInKes

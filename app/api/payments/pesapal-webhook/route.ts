@@ -86,22 +86,77 @@ export async function POST(request: NextRequest) {
         const userId = paymentRecord.userId;
 
         if (planId && userId) {
-          // Calculate subscription end date based on plan
-          const subscriptionEndDate = new Date();
-          const planDuration = planId === "weekly" ? 7 : planId === "monthly" ? 30 : 365;
-          subscriptionEndDate.setDate(subscriptionEndDate.getDate() + planDuration);
+          const planDuration = planId === "weekly" ? 7 : planId === "monthly" ? 30 : planId === "3months" ? 90 : 90;
 
-          await updateUserSubscription(userId, {
-            subscriptionStatus: "active",
-            subscriptionType: planId as "basic" | "premium" | "pro",
-            subscriptionEndDate,
-          });
+          // Map plan to subscription type
+          const subscriptionTypeMapping: Record<string, "basic" | "premium" | "pro"> = {
+            "weekly": "basic",
+            "monthly": "premium",
+            "3months": "pro"
+          };
 
-          console.log('✅ [Pesapal Webhook] User subscription updated:', {
-            userId,
-            planId,
-            subscriptionEndDate
-          });
+          const subscriptionType = subscriptionTypeMapping[planId] || "basic";
+
+          // Get current user to check their subscription status
+          const { ObjectId } = require("mongodb");
+          const currentUser = await db.collection("users").findOne({ _id: new ObjectId(userId) });
+          
+          if (currentUser) {
+            const currentType = currentUser.subscriptionType;
+            const currentEndDate = currentUser.subscriptionEndDate ? new Date(currentUser.subscriptionEndDate) : null;
+            const now = new Date();
+            
+            // Check if user is on a paid plan that hasn't expired
+            const isOnActivePaidPlan = 
+              currentType && 
+              currentType !== "free" && 
+              currentEndDate && 
+              currentEndDate > now;
+
+            if (isOnActivePaidPlan) {
+              // Schedule new subscription to start after current expires
+              console.log('⏰ [Pesapal Webhook] User has active paid plan - scheduling new subscription');
+              
+              await db.collection("users").updateOne(
+                { _id: new ObjectId(userId) },
+                {
+                  $set: {
+                    pendingSubscription: {
+                      type: subscriptionType,
+                      planId: planId,
+                      planName: paymentRecord.planName,
+                      duration: planDuration,
+                      scheduledStartDate: currentEndDate
+                    },
+                    updatedAt: new Date()
+                  }
+                }
+              );
+              
+              console.log('✅ [Pesapal Webhook] Pending subscription scheduled');
+            } else {
+              // Activate immediately
+              const subscriptionStartDate = new Date();
+              const subscriptionEndDate = new Date();
+              subscriptionEndDate.setDate(subscriptionEndDate.getDate() + planDuration);
+
+              await updateUserSubscription(userId, {
+                subscriptionStatus: "active",
+                subscriptionType: subscriptionType,
+                subscriptionStartDate,
+                subscriptionEndDate,
+              });
+
+              console.log('✅ [Pesapal Webhook] User subscription activated immediately:', {
+                userId,
+                planId,
+                subscriptionType,
+                subscriptionStartDate: subscriptionStartDate.toISOString(),
+                subscriptionEndDate: subscriptionEndDate.toISOString(),
+                daysRemaining: planDuration
+              });
+            }
+          }
         }
       }
 
