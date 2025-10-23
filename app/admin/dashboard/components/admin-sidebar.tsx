@@ -81,9 +81,6 @@ export default function AdminSidebar({
                   className="h-8 w-auto"
                 />
               </Link>
-              <div>
-                <p className="text-xs text-gray-400">Admin Panel</p>
-              </div>
             </div>
           )}
           {collapsed && (

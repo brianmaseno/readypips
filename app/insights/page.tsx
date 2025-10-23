@@ -19,6 +19,8 @@ import {
   Settings,
   Plus,
   ChevronRight,
+  Lock,
+  Activity,
 } from "lucide-react";
 import { Navigation } from "@/components/navigation";
 import SymbolSelector from "@/components/symbol-selector";
@@ -27,6 +29,9 @@ import AIInsights from "@/components/ai-insights";
 import AnalysisHistory from "@/components/analysis-history";
 import MarketNews from "@/components/market-news";
 import { useAuth } from "@/components/auth-context";
+import { useRequireSubscription } from "@/hooks/use-subscription-access";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface MarketData {
   symbol: string;
@@ -88,6 +93,8 @@ const popularSymbols = [
 
 export default function InsightsPage() {
   const { user } = useAuth();
+  const router = useRouter();
+  const subscriptionAccess = useRequireSubscription('/subscription');
   const [selectedSymbol, setSelectedSymbol] = useState(() => {
     // Get from localStorage or default to gold
     if (typeof window !== "undefined") {
@@ -108,6 +115,14 @@ export default function InsightsPage() {
 
   // Add ref for AIInsights component
   const aiInsightsRef = useRef<{ triggerAnalysis: () => void }>(null);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+  }, [user, router]);
 
   // Mobile detection
   useEffect(() => {
@@ -141,6 +156,88 @@ export default function InsightsPage() {
     }
     setBottomSheetOpen(false);
   };
+
+  if (!user) {
+    return null;
+  }
+
+  // Show subscription required message if access is denied
+  if (subscriptionAccess.loading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-black">
+        <Navigation />
+        <div className="container mx-auto px-4 py-12 flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <Activity className="w-12 h-12 mx-auto mb-4 text-gray-400 animate-pulse" />
+            <p className="text-lg text-gray-600 dark:text-gray-400">Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!subscriptionAccess.hasAccess) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-black">
+        <Navigation />
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-2xl mx-auto">
+            <Card className="border-2 border-orange-200 dark:border-orange-800 shadow-xl">
+              <CardHeader className="text-center pb-6">
+                <div className="w-20 h-20 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Lock className="w-10 h-10 text-orange-600" />
+                </div>
+                <CardTitle className="text-3xl text-gray-900 dark:text-white mb-2">
+                  Subscription Required
+                </CardTitle>
+                <p className="text-lg text-gray-600 dark:text-gray-400">
+                  {subscriptionAccess.message}
+                </p>
+              </CardHeader>
+              <CardContent className="text-center space-y-6">
+                <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-6">
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
+                    Access Premium AI Insights
+                  </h3>
+                  <ul className="text-left space-y-2 text-gray-700 dark:text-gray-300 max-w-md mx-auto">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 mt-1">✓</span>
+                      <span>AI-powered market analysis</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 mt-1">✓</span>
+                      <span>Real-time trading insights and sentiment</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 mt-1">✓</span>
+                      <span>Technical analysis with entry/exit points</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 mt-1">✓</span>
+                      <span>Market news and analysis history</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link href="/subscription">
+                    <Button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-6 text-lg">
+                      View Subscription Plans
+                    </Button>
+                  </Link>
+                  <Link href="/dashboard">
+                    <Button variant="outline" className="border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white px-8 py-6 text-lg">
+                      Back to Dashboard
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Mobile Layout
   if (isMobile) {

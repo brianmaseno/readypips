@@ -10,6 +10,11 @@ declare module "next-auth" {
       lastName: string;
       subscriptionStatus: string;
       subscriptionType: string;
+      subscriptionEndDate?: Date | string;
+      subscriptionStartDate?: Date | string;
+      freeTrialEndDate?: Date | string;
+      emailVerified?: boolean;
+      createdAt?: Date | string;
     } & DefaultSession["user"];
     appToken: string;
   }
@@ -29,6 +34,11 @@ declare module "next-auth/jwt" {
     lastName: string;
     subscriptionStatus: string;
     subscriptionType: string;
+    subscriptionEndDate?: Date | string;
+    subscriptionStartDate?: Date | string;
+    freeTrialEndDate?: Date | string;
+    emailVerified?: boolean;
+    createdAt?: Date | string;
     appToken: string;
   }
 }

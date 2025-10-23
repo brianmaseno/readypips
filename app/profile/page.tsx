@@ -26,10 +26,14 @@ interface SubscriptionInfo {
   status: string;
   type: string | null;
   endDate: string | null;
+  freeTrialEndDate?: string | null;
   daysRemaining: number;
+  hoursRemaining: number;
   isExpiringSoon: boolean;
   isActive: boolean;
   isFreePlan: boolean;
+  isFreeTrialExpired: boolean;
+  freeTrialDaysRemaining: number;
   pendingSubscription?: {
     type: string;
     planId: string;
@@ -266,11 +270,11 @@ export default function ProfilePage() {
                           Member Since
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {new Date(user.createdAt).toLocaleDateString('en-US', {
+                          {user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
-                          })}
+                          }) : 'N/A'}
                         </p>
                       </div>
                     </div>
@@ -335,81 +339,116 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    {/* Subscription Details - Only for Paid Plans */}
-                    {subscriptionInfo.isActive && !subscriptionInfo.isFreePlan && subscriptionInfo.endDate && (
-                      <>
-                        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                              Days Remaining
-                            </span>
-                            <span className={`text-sm font-semibold ${
-                              subscriptionInfo.isExpiringSoon 
-                                ? 'text-orange-600' 
-                                : 'text-green-600'
-                            }`}>
-                              {subscriptionInfo.daysRemaining} days
-                            </span>
-                          </div>
-                          
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                              Expires On
-                            </span>
-                            <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {new Date(subscriptionInfo.endDate).toLocaleDateString('en-US', {
-                                month: 'short',
-                                day: 'numeric',
-                                year: 'numeric'
-                              })}
-                            </span>
-                          </div>
-                        </div>
-
-                        {subscriptionInfo.isExpiringSoon && (
-                          <div className="flex items-start gap-2 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                            <AlertCircle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
-                            <p className="text-xs text-orange-700 dark:text-orange-400">
-                              Your subscription is expiring soon. Renew to continue enjoying premium features.
-                            </p>
-                          </div>
-                        )}
-                      </>
-                    )}
-
-                    {/* Pending Subscription Alert */}
-                    {subscriptionInfo.pendingSubscription && (
+                    {/* Subscription Details - For Both Free Trial and Paid Plans */}
+                    {subscriptionInfo.isActive && (
                       <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                        <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                          <Clock className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                          <div className="flex-1">
-                            <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-1">
-                              Upcoming Subscription
-                            </p>
-                            <p className="text-xs text-blue-600 dark:text-blue-300">
-                              Your <strong>{getPlanDisplayName(subscriptionInfo.pendingSubscription.type)}</strong> will activate on{' '}
-                              <strong>
-                                {new Date(subscriptionInfo.pendingSubscription.scheduledStartDate).toLocaleDateString('en-US', {
+                        {/* Free Trial Information */}
+                        {subscriptionInfo.isFreePlan && subscriptionInfo.freeTrialEndDate && (
+                          <>
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-sm text-gray-600 dark:text-gray-400">
+                                Free Trial
+                              </span>
+                              <Badge className="bg-blue-600 text-white text-xs">
+                                {subscriptionInfo.freeTrialDaysRemaining} day{subscriptionInfo.freeTrialDaysRemaining !== 1 ? 's' : ''} left
+                              </Badge>
+                            </div>
+                            
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm text-gray-600 dark:text-gray-400">
+                                Trial Expires
+                              </span>
+                              <span className={`text-sm font-semibold ${
+                                subscriptionInfo.freeTrialDaysRemaining <= 1
+                                  ? 'text-orange-600' 
+                                  : 'text-green-600'
+                              }`}>
+                                {subscriptionInfo.freeTrialEndDate && new Date(subscriptionInfo.freeTrialEndDate).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
+                            </div>
+
+                            <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                              <p className="text-xs text-blue-700 dark:text-blue-400">
+                                🎁 <strong>Free Trial Active!</strong> You have full access to all premium features for {subscriptionInfo.freeTrialDaysRemaining} more day{subscriptionInfo.freeTrialDaysRemaining !== 1 ? 's' : ''}. Subscribe before trial ends to continue enjoying premium features.
+                              </p>
+                            </div>
+
+                            {subscriptionInfo.freeTrialDaysRemaining <= 1 && (
+                              <div className="flex items-start gap-2 p-3 mt-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                                <AlertCircle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                                <p className="text-xs text-orange-700 dark:text-orange-400">
+                                  <strong>Trial Ending Soon!</strong> Your free trial expires in less than {subscriptionInfo.freeTrialDaysRemaining === 0 ? '24 hours' : '1 day'}. Subscribe now to avoid losing access to premium features.
+                                </p>
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                        {/* Paid Subscription Information */}
+                        {!subscriptionInfo.isFreePlan && subscriptionInfo.endDate && (
+                          <>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm text-gray-600 dark:text-gray-400">
+                                Days Remaining
+                              </span>
+                              <span className={`text-sm font-semibold ${
+                                subscriptionInfo.isExpiringSoon 
+                                  ? 'text-orange-600' 
+                                  : 'text-green-600'
+                              }`}>
+                                {subscriptionInfo.daysRemaining} days
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-gray-600 dark:text-gray-400">
+                                Expires On
+                              </span>
+                              <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                                {subscriptionInfo.endDate && new Date(subscriptionInfo.endDate).toLocaleDateString('en-US', {
                                   month: 'short',
                                   day: 'numeric',
                                   year: 'numeric'
                                 })}
-                              </strong>
-                            </p>
-                          </div>
-                        </div>
+                              </span>
+                            </div>
+
+                            {subscriptionInfo.isExpiringSoon && (
+                              <div className="flex items-start gap-2 p-3 mt-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                                <AlertCircle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                                <p className="text-xs text-orange-700 dark:text-orange-400">
+                                  Your subscription is expiring soon. Renew to continue enjoying premium features.
+                                </p>
+                              </div>
+                            )}
+                          </>
+                        )}
                       </div>
                     )}
 
                     {/* Action Buttons */}
                     <div className="pt-4 space-y-2">
-                      {subscriptionInfo.status !== "active" ? (
+                      {subscriptionInfo.isFreePlan ? (
                         <Button 
                           className="w-full bg-green-600 hover:bg-green-700"
                           onClick={() => router.push("/subscription")}
                         >
                           <Award className="h-4 w-4 mr-2" />
-                          Upgrade Plan
+                          {subscriptionInfo.isFreeTrialExpired ? 'Subscribe Now' : 'Upgrade to Premium'}
+                        </Button>
+                      ) : subscriptionInfo.status !== "active" ? (
+                        <Button 
+                          className="w-full bg-green-600 hover:bg-green-700"
+                          onClick={() => router.push("/subscription")}
+                        >
+                          <Award className="h-4 w-4 mr-2" />
+                          Renew Subscription
                         </Button>
                       ) : (
                         <Button 
@@ -424,9 +463,39 @@ export default function ProfilePage() {
                     </div>
 
                     {/* Free Plan Info */}
-                    {(!subscriptionInfo.type || subscriptionInfo.type === "free") && (
+                    {subscriptionInfo.isFreePlan && !subscriptionInfo.isFreeTrialExpired && (
                       <div className="text-center text-xs text-gray-500 dark:text-gray-400 pt-2">
-                        <p>On Free Plan - Limited features</p>
+                        <p>🎁 Enjoying your free trial? Upgrade for unlimited access!</p>
+                      </div>
+                    )}
+
+                    {subscriptionInfo.isFreeTrialExpired && (
+                      <div className="text-center text-xs text-gray-500 dark:text-gray-400 pt-2">
+                        <p>⏰ Free trial expired - Subscribe to continue</p>
+                      </div>
+                    )}
+
+                    {/* Pending Subscription Alert */}
+                    {subscriptionInfo.pendingSubscription && (
+                      <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                        <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                          <Clock className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                          <div className="flex-1">
+                            <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-1">
+                              Upcoming Subscription
+                            </p>
+                            <p className="text-xs text-blue-600 dark:text-blue-300">
+                              Your <strong>{getPlanDisplayName(subscriptionInfo.pendingSubscription.type)}</strong> will activate on{' '}
+                              <strong>
+                                {subscriptionInfo.pendingSubscription.scheduledStartDate && new Date(subscriptionInfo.pendingSubscription.scheduledStartDate).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric'
+                                })}
+                              </strong>
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>

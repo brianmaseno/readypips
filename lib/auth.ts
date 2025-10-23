@@ -15,6 +15,7 @@ export interface User {
   subscriptionType: "free" | "basic" | "premium" | "pro" | null;
   subscriptionEndDate?: Date;
   subscriptionStartDate?: Date;
+  freeTrialEndDate?: Date; // 3-day free trial for new users
   // Pending subscription (scheduled to activate after current expires)
   pendingSubscription?: {
     type: "basic" | "premium" | "pro";
@@ -61,13 +62,18 @@ export async function createUser(
   const db = await getDatabase();
   const hashedPassword = await hashPassword(userData.password!);
 
+  // Calculate 3-day free trial end date
+  const freeTrialEndDate = new Date();
+  freeTrialEndDate.setDate(freeTrialEndDate.getDate() + 3);
+
   const user = {
     ...userData,
     password: hashedPassword,
-    // Default to free plan for all new users
+    // Default to free plan for all new users with 3-day trial
     subscriptionStatus: "active",
     subscriptionType: "free",
-    subscriptionEndDate: null, // Free plan never expires
+    subscriptionEndDate: null,
+    freeTrialEndDate, // 3-day free trial
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -91,6 +97,7 @@ export async function findUser(email: string): Promise<User | null> {
     subscriptionStatus: user.subscriptionStatus || "inactive",
     subscriptionType: user.subscriptionType || null,
     subscriptionEndDate: user.subscriptionEndDate,
+    freeTrialEndDate: user.freeTrialEndDate,
     emailVerified: user.emailVerified || false,
     emailVerifiedAt: user.emailVerifiedAt,
     provider: user.provider || "credentials",
@@ -141,6 +148,7 @@ export async function findUserById(id: string): Promise<User | null> {
     subscriptionStatus: user.subscriptionStatus || "inactive",
     subscriptionType: user.subscriptionType || null,
     subscriptionEndDate: user.subscriptionEndDate,
+    freeTrialEndDate: user.freeTrialEndDate,
     emailVerified: user.emailVerified || false,
     emailVerifiedAt: user.emailVerifiedAt,
     provider: user.provider || "credentials",
@@ -157,17 +165,23 @@ export async function updateUserSubscription(
     subscriptionStatus: "active" | "inactive" | "expired";
     subscriptionType: "basic" | "premium" | "pro";
     subscriptionEndDate: Date;
+    subscriptionStartDate?: Date;
   }
 ): Promise<void> {
   const db = await getDatabase();
   const { ObjectId } = require("mongodb");
 
+  // When upgrading from free trial to paid, remove the freeTrialEndDate
   await db.collection("users").updateOne(
     { _id: new ObjectId(userId) },
     {
       $set: {
         ...subscriptionData,
+        subscriptionStartDate: subscriptionData.subscriptionStartDate || new Date(),
         updatedAt: new Date(),
+      },
+      $unset: {
+        freeTrialEndDate: "", // Remove free trial date when upgrading to paid
       },
     }
   );

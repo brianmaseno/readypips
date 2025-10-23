@@ -8,16 +8,25 @@ interface User {
   firstName: string;
   lastName: string;
   email: string;
-  isPremium: boolean;
-  isEmailVerified: boolean;
+  subscriptionType?: 'free' | 'basic' | 'premium' | 'pro' | null;
+  subscriptionStatus?: 'active' | 'inactive' | 'expired';
+  emailVerified?: boolean;
   createdAt: string;
+  freeTrialEndDate?: string;
+  subscriptionEndDate?: string;
 }
 
 export default function UserManagement({ admin }: { admin: any }) {
   const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ total: 0, premium: 0, basic: 0 });
+  const [stats, setStats] = useState({ 
+    total: 0, 
+    free: 0, 
+    weekly: 0, 
+    monthly: 0, 
+    threeMonths: 0 
+  });
 
   useEffect(() => {
     fetchUsers();
@@ -37,12 +46,14 @@ export default function UserManagement({ admin }: { admin: any }) {
         const data = await response.json();
         setUsers(data.users || []);
         
-        // Calculate stats
+        // Calculate stats by subscription type
         const total = data.users?.length || 0;
-        const premium = data.users?.filter((u: User) => u.isPremium).length || 0;
-        const basic = total - premium;
+        const free = data.users?.filter((u: User) => !u.subscriptionType || u.subscriptionType === 'free').length || 0;
+        const weekly = data.users?.filter((u: User) => u.subscriptionType === 'basic').length || 0;
+        const monthly = data.users?.filter((u: User) => u.subscriptionType === 'premium').length || 0;
+        const threeMonths = data.users?.filter((u: User) => u.subscriptionType === 'pro').length || 0;
         
-        setStats({ total, premium, basic });
+        setStats({ total, free, weekly, monthly, threeMonths });
       }
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -70,10 +81,12 @@ export default function UserManagement({ admin }: { admin: any }) {
         <h2 className="text-2xl font-bold text-gray-900 mb-4">User Management</h2>
         <p className="text-gray-600 mb-4">Manage registered users and their access to trading tools.</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-          <StatBox title="Total Users" value={stats.total.toString()} />
-          <StatBox title="Premium Users" value={stats.premium.toString()} />
-          <StatBox title="Basic Users" value={stats.basic.toString()} />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+          <StatBox title="Total Users" value={stats.total.toString()} color="blue" />
+          <StatBox title="Free Trial" value={stats.free.toString()} color="gray" />
+          <StatBox title="Weekly Plan" value={stats.weekly.toString()} color="green" />
+          <StatBox title="Monthly Plan" value={stats.monthly.toString()} color="purple" />
+          <StatBox title="3 Months Plan" value={stats.threeMonths.toString()} color="orange" />
         </div>
 
         <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -92,6 +105,8 @@ export default function UserManagement({ admin }: { admin: any }) {
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Name</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Email</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Plan</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Expires On</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Email Verified</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Joined</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Actions</th>
@@ -107,20 +122,28 @@ export default function UserManagement({ admin }: { admin: any }) {
                       <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
                       <td className="px-6 py-4 text-sm">
                         <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
-                          user.isPremium
-                            ? 'bg-purple-100 text-purple-800'
-                            : 'bg-gray-100 text-gray-800'
+                          getPlanBadgeColor(user.subscriptionType)
                         }`}>
-                          {user.isPremium ? 'Premium' : 'Basic'}
+                          {getPlanDisplayName(user.subscriptionType)}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
-                          user.isEmailVerified
+                          getStatusBadgeColor(user.subscriptionStatus)
+                        }`}>
+                          {(user.subscriptionStatus || 'inactive').toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {getExpiryDisplay(user)}
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
+                          user.emailVerified
                             ? 'bg-green-100 text-green-800'
                             : 'bg-yellow-100 text-yellow-800'
                         }`}>
-                          {user.isEmailVerified ? 'Verified' : 'Pending'}
+                          {user.emailVerified ? 'Verified' : 'Pending'}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
@@ -134,7 +157,7 @@ export default function UserManagement({ admin }: { admin: any }) {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                    <td colSpan={8} className="px-6 py-4 text-center text-sm text-gray-500">
                       No users found
                     </td>
                   </tr>
@@ -148,9 +171,17 @@ export default function UserManagement({ admin }: { admin: any }) {
   );
 }
 
-function StatBox({ title, value }: { title: string; value: string }) {
+function StatBox({ title, value, color = 'blue' }: { title: string; value: string; color?: string }) {
+  const colorClasses: Record<string, string> = {
+    blue: 'from-blue-50 to-blue-100',
+    gray: 'from-gray-50 to-gray-100',
+    green: 'from-green-50 to-green-100',
+    purple: 'from-purple-50 to-purple-100',
+    orange: 'from-orange-50 to-orange-100',
+  };
+
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4">
+    <div className={`bg-gradient-to-br ${colorClasses[color]} rounded-lg p-4`}>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-gray-600">{title}</p>
@@ -159,4 +190,66 @@ function StatBox({ title, value }: { title: string; value: string }) {
       </div>
     </div>
   );
+}
+
+function getPlanDisplayName(type: string | null | undefined): string {
+  const planNames: Record<string, string> = {
+    free: 'Free Trial',
+    basic: 'Weekly Plan',
+    premium: 'Monthly Plan',
+    pro: '3 Months Plan',
+  };
+  return planNames[type || 'free'] || 'Free Trial';
+}
+
+function getPlanBadgeColor(type: string | null | undefined): string {
+  const colors: Record<string, string> = {
+    free: 'bg-gray-100 text-gray-800',
+    basic: 'bg-green-100 text-green-800',
+    premium: 'bg-purple-100 text-purple-800',
+    pro: 'bg-orange-100 text-orange-800',
+  };
+  return colors[type || 'free'] || 'bg-gray-100 text-gray-800';
+}
+
+function getStatusBadgeColor(status: string | undefined): string {
+  const colors: Record<string, string> = {
+    active: 'bg-green-100 text-green-800',
+    inactive: 'bg-gray-100 text-gray-800',
+    expired: 'bg-red-100 text-red-800',
+  };
+  return colors[status || 'inactive'] || 'bg-gray-100 text-gray-800';
+}
+
+function getExpiryDisplay(user: User): string {
+  // For free trial users
+  if (!user.subscriptionType || user.subscriptionType === 'free') {
+    if (user.freeTrialEndDate) {
+      const expiryDate = new Date(user.freeTrialEndDate);
+      const now = new Date();
+      const daysRemaining = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (daysRemaining > 0) {
+        return `${expiryDate.toLocaleDateString()} (${daysRemaining}d left)`;
+      } else {
+        return `${expiryDate.toLocaleDateString()} (Expired)`;
+      }
+    }
+    return 'No trial date';
+  }
+  
+  // For paid subscriptions
+  if (user.subscriptionEndDate) {
+    const expiryDate = new Date(user.subscriptionEndDate);
+    const now = new Date();
+    const daysRemaining = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysRemaining > 0) {
+      return `${expiryDate.toLocaleDateString()} (${daysRemaining}d left)`;
+    } else {
+      return `${expiryDate.toLocaleDateString()} (Expired)`;
+    }
+  }
+  
+  return 'No expiry date';
 }

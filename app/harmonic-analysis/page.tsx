@@ -27,8 +27,14 @@ import {
   Loader2,
   Settings,
   Zap,
+  Lock,
+  Activity,
 } from "lucide-react";
 import { Navigation } from "@/components/navigation";
+import { useAuth } from "@/components/auth-context";
+import { useRequireSubscription } from "@/hooks/use-subscription-access";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { HarmonicChart } from "@/components/harmonic-chart";
 
 interface HarmonicPattern {
@@ -54,6 +60,9 @@ interface HarmonicAnalysis {
 }
 
 export default function HarmonicAnalysisPage() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const subscriptionAccess = useRequireSubscription('/subscription');
   const [analysis, setAnalysis] = useState<HarmonicAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedTimeframe, setSelectedTimeframe] = useState("1D");
@@ -66,6 +75,14 @@ export default function HarmonicAnalysisPage() {
     showPatterns: true,
     showFibLevels: true,
   });
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+  }, [user, router]);
 
   const timeframes = [
     { value: "1m", label: "1 Minute" },
@@ -116,6 +133,88 @@ export default function HarmonicAnalysisPage() {
   useEffect(() => {
     analyzeHarmonicPatterns();
   }, [selectedTimeframe]);
+
+  if (!user) {
+    return null;
+  }
+
+  // Show subscription required message if access is denied
+  if (subscriptionAccess.loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto px-4 py-12 flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <Activity className="w-12 h-12 mx-auto mb-4 text-gray-400 animate-pulse" />
+            <p className="text-lg text-muted-foreground">Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!subscriptionAccess.hasAccess) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-2xl mx-auto">
+            <Card className="border-2 border-orange-200 dark:border-orange-800 shadow-xl">
+              <CardHeader className="text-center pb-6">
+                <div className="w-20 h-20 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Lock className="w-10 h-10 text-orange-600" />
+                </div>
+                <CardTitle className="text-3xl mb-2">
+                  Subscription Required
+                </CardTitle>
+                <p className="text-lg text-muted-foreground">
+                  {subscriptionAccess.message}
+                </p>
+              </CardHeader>
+              <CardContent className="text-center space-y-6">
+                <div className="bg-muted rounded-lg p-6">
+                  <h3 className="font-semibold mb-3">
+                    Access Premium Harmonic Analysis
+                  </h3>
+                  <ul className="text-left space-y-2 text-sm max-w-md mx-auto">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 mt-1">✓</span>
+                      <span>Advanced harmonic pattern recognition</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 mt-1">✓</span>
+                      <span>Real-time Fibonacci level analysis</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 mt-1">✓</span>
+                      <span>Entry and exit point recommendations</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 mt-1">✓</span>
+                      <span>Frank State Strategy implementation</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link href="/subscription">
+                    <Button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-6 text-lg">
+                      View Subscription Plans
+                    </Button>
+                  </Link>
+                  <Link href="/dashboard">
+                    <Button variant="outline" className="px-8 py-6 text-lg">
+                      Back to Dashboard
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

@@ -50,14 +50,21 @@ export const authOptions: NextAuthOptions = {
         if (!existingUser) {
           // Create new user with Google OAuth
           const googleProfile = profile as any;
+          
+          // Set free trial end date to 3 days from now
+          const freeTrialEndDate = new Date();
+          freeTrialEndDate.setDate(freeTrialEndDate.getDate() + 3);
+          
           const newUser = {
             email: user.email!,
             firstName: googleProfile?.given_name || user.name?.split(' ')[0] || 'User',
             lastName: googleProfile?.family_name || user.name?.split(' ').slice(1).join(' ') || '',
             emailVerified: true,
             emailVerifiedAt: new Date(),
-            subscriptionStatus: "inactive" as const,
-            subscriptionType: null,
+            subscriptionStatus: "active" as const,
+            subscriptionType: "free" as const,
+            freeTrialEndDate: freeTrialEndDate,
+            subscriptionEndDate: null,
             provider: "google",
             googleId: account?.providerAccountId,
             image: user.image,
@@ -66,23 +73,43 @@ export const authOptions: NextAuthOptions = {
           };
 
           const result = await db.collection("users").insertOne(newUser);
-          console.log('[Google OAuth] New user created:', { email: user.email, id: result.insertedId });
+          console.log('[Google OAuth] New user created with free trial:', { 
+            email: user.email, 
+            id: result.insertedId,
+            freeTrialEndDate: freeTrialEndDate.toISOString()
+          });
         } else {
           // Update existing user with Google info if not already linked
+          const updateData: any = {
+            updatedAt: new Date(),
+          };
+          
           if (!existingUser.googleId) {
+            updateData.googleId = account?.providerAccountId;
+            updateData.image = user.image;
+            updateData.emailVerified = true;
+            updateData.emailVerifiedAt = new Date();
+          }
+          
+          // If user doesn't have a free trial end date, add one
+          if (!existingUser.freeTrialEndDate && (!existingUser.subscriptionType || existingUser.subscriptionType === 'free')) {
+            const freeTrialEndDate = new Date();
+            freeTrialEndDate.setDate(freeTrialEndDate.getDate() + 3);
+            updateData.freeTrialEndDate = freeTrialEndDate;
+            updateData.subscriptionStatus = "active";
+            updateData.subscriptionType = "free";
+            console.log('[Google OAuth] Adding free trial to existing user:', { 
+              email: user.email, 
+              freeTrialEndDate: freeTrialEndDate.toISOString() 
+            });
+          }
+          
+          if (Object.keys(updateData).length > 1) { // More than just updatedAt
             await db.collection("users").updateOne(
               { email: user.email },
-              {
-                $set: {
-                  googleId: account?.providerAccountId,
-                  image: user.image,
-                  emailVerified: true,
-                  emailVerifiedAt: new Date(),
-                  updatedAt: new Date(),
-                },
-              }
+              { $set: updateData }
             );
-            console.log('[Google OAuth] Existing user linked to Google:', user.email);
+            console.log('[Google OAuth] Existing user updated:', user.email);
           }
         }
 
@@ -111,6 +138,12 @@ export const authOptions: NextAuthOptions = {
           token.lastName = dbUser.lastName;
           token.subscriptionStatus = dbUser.subscriptionStatus;
           token.subscriptionType = dbUser.subscriptionType;
+          token.subscriptionEndDate = dbUser.subscriptionEndDate;
+          token.subscriptionStartDate = dbUser.subscriptionStartDate;
+          token.freeTrialEndDate = dbUser.freeTrialEndDate;
+          token.emailVerified = dbUser.emailVerified;
+          token.createdAt = dbUser.createdAt;
+          token.image = dbUser.image;
           
           // Generate JWT token for our app
           token.appToken = generateToken(dbUser._id.toString());
@@ -126,6 +159,12 @@ export const authOptions: NextAuthOptions = {
         session.user.lastName = token.lastName as string;
         session.user.subscriptionStatus = token.subscriptionStatus as string;
         session.user.subscriptionType = token.subscriptionType as string;
+        session.user.subscriptionEndDate = token.subscriptionEndDate as any;
+        session.user.subscriptionStartDate = token.subscriptionStartDate as any;
+        session.user.freeTrialEndDate = token.freeTrialEndDate as any;
+        session.user.emailVerified = token.emailVerified as boolean;
+        session.user.createdAt = token.createdAt as any;
+        session.user.image = token.image as string;
         session.appToken = token.appToken as string;
       }
       return session;

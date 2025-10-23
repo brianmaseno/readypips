@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Navigation } from "@/components/navigation";
 import { useAuth } from "@/components/auth-context";
+import { useRequireSubscription } from "@/hooks/use-subscription-access";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,12 +16,14 @@ import {
   Activity,
   Clock,
   ChevronDown,
-  BarChart3
+  BarChart3,
+  Lock
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import MarketInfoTimer from "@/components/market-info-timer";
 import TradingViewWidget from "@/components/tradingview-widget";
 import TradingViewTicker from "@/components/tradingview-ticker";
+import Link from "next/link";
 
 interface MarketData {
   symbol: string;
@@ -55,6 +58,7 @@ const defaultSymbol = availableSymbols[0];
 export default function ChartsPage() {
   const { user } = useAuth();
   const router = useRouter();
+  const subscriptionAccess = useRequireSubscription('/subscription');
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [marketData, setMarketData] = useState<MarketData | null>(null);
@@ -157,9 +161,94 @@ export default function ChartsPage() {
       setIsFullscreen(false);
     }
   };
-
   if (!user) {
     return null;
+  }
+
+  // Show subscription required message if access is denied
+  if (subscriptionAccess.loading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-black">
+        <Navigation />
+        <div className="container mx-auto px-4 py-12 flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <Activity className="w-12 h-12 mx-auto mb-4 text-gray-400 animate-pulse" />
+            <p className="text-lg text-gray-600 dark:text-gray-400">Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!subscriptionAccess.hasAccess) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-black">
+        <Navigation />
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-2xl mx-auto">
+            <Card className="border-2 border-orange-200 dark:border-orange-800 shadow-xl">
+              <CardHeader className="text-center pb-6">
+                <div className="w-20 h-20 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Lock className="w-10 h-10 text-orange-600" />
+                </div>
+                <CardTitle className="text-3xl text-gray-900 dark:text-white mb-2">
+                  Subscription Required
+                </CardTitle>
+                <p className="text-lg text-gray-600 dark:text-gray-400">
+                  {subscriptionAccess.message}
+                </p>
+              </CardHeader>
+              <CardContent className="text-center space-y-6">
+                <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-6">
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
+                    Why Subscribe?
+                  </h3>
+                  <ul className="text-left space-y-2 text-gray-700 dark:text-gray-300 max-w-md mx-auto">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 mt-1">✓</span>
+                      <span>Access advanced trading charts with real-time data</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 mt-1">✓</span>
+                      <span>Get premium trading signals and insights</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 mt-1">✓</span>
+                      <span>Use AI-powered analysis tools</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 mt-1">✓</span>
+                      <span>Track your trading performance</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link href="/subscription">
+                    <Button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-6 text-lg">
+                      View Subscription Plans
+                    </Button>
+                  </Link>
+                  <Link href="/dashboard">
+                    <Button variant="outline" className="border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white px-8 py-6 text-lg">
+                      Back to Dashboard
+                    </Button>
+                  </Link>
+                </div>
+
+                {subscriptionAccess.isFreeTrial && !subscriptionAccess.isFreeTrialExpired && (
+                  <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <p className="text-sm text-blue-800 dark:text-blue-200">
+                      <span className="font-semibold">Free Trial Active:</span> You have {subscriptionAccess.daysRemaining} day{subscriptionAccess.daysRemaining !== 1 ? 's' : ''} remaining. Subscribe now to avoid interruption!
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

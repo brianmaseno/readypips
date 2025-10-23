@@ -9,8 +9,15 @@ interface User {
   firstName: string;
   lastName: string;
   subscriptionStatus: 'active' | 'inactive' | 'expired';
-  subscriptionType: 'basic' | 'premium' | 'pro' | null;
+  subscriptionType: 'basic' | 'premium' | 'pro' | 'free' | null;
   subscriptionEndDate?: Date;
+  subscriptionStartDate?: Date;
+  freeTrialEndDate?: Date;
+  emailVerified?: boolean;
+  createdAt?: Date;
+  image?: string;
+  isAdmin?: boolean;
+  role?: string;
 }
 
 interface AuthContextType {
@@ -42,6 +49,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           lastName: session.user.lastName,
           subscriptionStatus: session.user.subscriptionStatus as any,
           subscriptionType: session.user.subscriptionType as any,
+          subscriptionEndDate: (session.user as any).subscriptionEndDate,
+          subscriptionStartDate: (session.user as any).subscriptionStartDate,
+          freeTrialEndDate: (session.user as any).freeTrialEndDate,
+          emailVerified: (session.user as any).emailVerified,
+          createdAt: (session.user as any).createdAt,
+          image: session.user.image,
           isAdmin: (session.user as any).isAdmin,
           role: (session.user as any).role,
         } as any);
