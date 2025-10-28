@@ -106,7 +106,7 @@ Calculates confidence level based on:
 ### In the Browser
 
 1. **Navigate to Charts Page**
-   - Go to: https://www.readypips.com/charts
+   - Go to: http://localhost:3000/charts
 
 2. **Select Symbol**
    - Choose a trading symbol (e.g., EURUSD, GBPUSD, XAUUSD)
@@ -258,7 +258,7 @@ node scripts/test-ai-insights.js
 ```
 
 ### Manual Test in Browser
-1. Go to https://www.readypips.com/charts
+1. Go to http://localhost:3000/charts
 2. Select a symbol
 3. Scroll to "AI Analysis & Insights"
 4. Select strategy and timeframes
@@ -375,7 +375,7 @@ Look for logs prefixed with:
    - Verify success message
 
 4. **Test in Browser**
-   - Go to https://www.readypips.com/charts
+   - Go to http://localhost:3000/charts
    - Select symbol
    - Run analysis
    - Verify results

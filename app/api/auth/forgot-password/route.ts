@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import { prisma } from "@/lib/prisma";
+import { getDatabase } from "@/lib/mongodb";
 import { sendEmail, emailTemplates } from "@/lib/email-service";
 
 export async function POST(request: NextRequest) {
@@ -14,9 +14,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const db = await getDatabase();
+    
     // Check if user exists
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
+    const user = await db.collection('users').findOne({
+      email: email.toLowerCase()
     });
 
     if (!user) {
@@ -36,24 +38,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Delete any existing reset tokens for this email
-    await prisma.passwordReset.deleteMany({
-      where: { email: user.email },
+    await db.collection('passwordResets').deleteMany({
+      email: user.email
     });
 
     // Generate reset token
     const resetToken = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user._id.toString(), email: user.email },
       process.env.JWT_SECRET!,
       { expiresIn: "1h" }
     );
 
     // Store reset token in database
-    await prisma.passwordReset.create({
-      data: {
-        email: user.email,
-        token: resetToken,
-        expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
-      },
+    await db.collection('passwordResets').insertOne({
+      email: user.email,
+      token: resetToken,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+      createdAt: new Date()
     });
 
     // Create reset URL

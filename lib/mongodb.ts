@@ -10,11 +10,13 @@ console.log('[MongoDB] Connecting to:', uri.includes('mongodb+srv') ? 'MongoDB A
 
 const options = {
   maxPoolSize: 10,
-  serverSelectionTimeoutMS: 10000,  // Increased from 5000
-  socketTimeoutMS: 45000,
-  connectTimeoutMS: 10000,  // Added
+  serverSelectionTimeoutMS: 30000,  // 30 seconds for initial connection
+  socketTimeoutMS: 60000,           // 60 seconds for socket operations
+  connectTimeoutMS: 30000,          // 30 seconds for connection timeout
   retryWrites: true,
   retryReads: true,
+  minPoolSize: 2,                   // Maintain minimum connections
+  maxIdleTimeMS: 60000,             // Close idle connections after 60s
 };
 
 let client: MongoClient;
@@ -43,8 +45,26 @@ export async function getDatabase(): Promise<Db> {
     const dbName = process.env.MONGODB_DB_NAME || "ready-pips";
     console.log('[MongoDB] Successfully connected to database:', dbName);
     return client.db(dbName);
-  } catch (error) {
-    console.error('[MongoDB] Connection error:', error);
+  } catch (error: any) {
+    console.error('[MongoDB] Connection error:', error.message);
+    console.error('[MongoDB] Error code:', error.code);
+    
+    // If connection fails, try to reconnect
+    if (error.name === 'MongoServerSelectionError') {
+      console.log('[MongoDB] Retrying connection...');
+      try {
+        // Create new client and retry
+        const newClient = new MongoClient(uri, options);
+        const connectedClient = await newClient.connect();
+        const dbName = process.env.MONGODB_DB_NAME || "ready-pips";
+        console.log('[MongoDB] Reconnected successfully to:', dbName);
+        return connectedClient.db(dbName);
+      } catch (retryError: any) {
+        console.error('[MongoDB] Retry failed:', retryError.message);
+        throw retryError;
+      }
+    }
+    
     throw error;
   }
 }

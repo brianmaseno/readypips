@@ -451,7 +451,7 @@ Sections verified:
 ```
 
 ### Browser Test
-1. Navigate to https://www.readypips.com/charts
+1. Navigate to http://localhost:3000/charts
 2. Select a trading symbol
 3. Scroll to "AI Analysis & Insights"
 4. Select strategy and timeframes
@@ -519,7 +519,7 @@ Look for these prefixes in console:
    ```
 
 5. **Test in Browser** (RECOMMENDED)
-   - Go to https://www.readypips.com/charts
+   - Go to http://localhost:3000/charts
    - Run analysis
    - Verify results
 

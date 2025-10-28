@@ -20,8 +20,8 @@ export const subscriptionPlans: SubscriptionPlan[] = [
   {
     id: "weekly",
     name: "Weekly",
-    price: 13.00,
-    currency: "USD",
+    price: 700,
+    currency: "KES",
     duration: 7,
     features: [
       "15 signals per day",
@@ -39,8 +39,8 @@ export const subscriptionPlans: SubscriptionPlan[] = [
   {
     id: "monthly",
     name: "Monthly",
-    price: 29.00,
-    currency: "USD",
+    price: 1000,
+    currency: "KES",
     duration: 30,
     features: [
       "35 signals per day",
@@ -60,8 +60,8 @@ export const subscriptionPlans: SubscriptionPlan[] = [
   {
     id: "3months",
     name: "3 Months",
-    price: 79.00,
-    currency: "USD",
+    price: 1500,
+    currency: "KES",
     duration: 90,
     features: [
       "Unlimited signals",
@@ -74,7 +74,7 @@ export const subscriptionPlans: SubscriptionPlan[] = [
       "Portfolio tracking",
       "Extended analysis",
       "90-day access",
-      "Save $8 vs monthly",
+      "Save KES 500 vs monthly",
     ],
     stripePriceId: "price_3months",
     paystackPlanCode: "PLN_3months",
@@ -156,7 +156,7 @@ export async function initializePaystack(
           currency: "KES", // Kenyan Shilling
           reference: reference,
           callback_url: `${
-            process.env.NEXT_PUBLIC_APP_URL || "https://www.readypips.com"
+            process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
           }/subscription/success`,
           metadata: {
             planId: planId,
@@ -298,7 +298,7 @@ export interface PesapalOrderResponse {
 // Register IPN (Instant Payment Notification) with PesaPal
 async function registerPesapalIPN(accessToken: string, baseUrl: string): Promise<string | null> {
   try {
-    const ipnUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://www.readypips.com"}/api/payments/pesapal-webhook`;
+    const ipnUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/payments/pesapal-webhook`;
     
     console.log("🔍 Registering IPN URL:", ipnUrl);
     
@@ -327,8 +327,59 @@ async function registerPesapalIPN(accessToken: string, baseUrl: string): Promise
     
     if (ipnData.ipn_id) {
       console.log("✅ IPN registered successfully:", ipnData.ipn_id);
-      console.log("⚠️  IMPORTANT: Add this to your .env file:");
-      console.log(`PESAPAL_NOTIFICATION_ID=${ipnData.ipn_id}`);
+      
+      // Automatically save to .env file
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const envPath = path.join(process.cwd(), '.env');
+        
+        // Read current .env file
+        let envContent = '';
+        if (fs.existsSync(envPath)) {
+          envContent = fs.readFileSync(envPath, 'utf8');
+        }
+        
+        // Check if PESAPAL_NOTIFICATION_ID already exists
+        const notificationIdRegex = /^PESAPAL_NOTIFICATION_ID=.*/m;
+        
+        if (notificationIdRegex.test(envContent)) {
+          // Update existing line
+          envContent = envContent.replace(
+            notificationIdRegex,
+            `PESAPAL_NOTIFICATION_ID=${ipnData.ipn_id}`
+          );
+          console.log("📝 Updated PESAPAL_NOTIFICATION_ID in .env file");
+        } else {
+          // Add new line in Pesapal section
+          const pesapalSectionRegex = /(# Pesapal[\s\S]*?)(\n# |$)/;
+          if (pesapalSectionRegex.test(envContent)) {
+            // Add to existing Pesapal section
+            envContent = envContent.replace(
+              pesapalSectionRegex,
+              `$1PESAPAL_NOTIFICATION_ID=${ipnData.ipn_id}\n$2`
+            );
+          } else {
+            // Add at the end of file
+            if (!envContent.endsWith('\n')) envContent += '\n';
+            envContent += `\n# Auto-generated Pesapal IPN ID\nPESAPAL_NOTIFICATION_ID=${ipnData.ipn_id}\n`;
+          }
+          console.log("📝 Added PESAPAL_NOTIFICATION_ID to .env file");
+        }
+        
+        // Write back to .env file
+        fs.writeFileSync(envPath, envContent, 'utf8');
+        console.log("✅ .env file updated automatically with notification ID");
+        
+        // Update process.env so it's available immediately
+        process.env.PESAPAL_NOTIFICATION_ID = ipnData.ipn_id;
+        
+      } catch (fsError) {
+        console.error("⚠️  Could not auto-update .env file:", fsError);
+        console.log("⚠️  Please manually add this to your .env file:");
+        console.log(`PESAPAL_NOTIFICATION_ID=${ipnData.ipn_id}`);
+      }
+      
       return ipnData.ipn_id;
     }
     
@@ -456,7 +507,7 @@ export async function initializePesapal(
       currency: "KES",
       amount: amount,
       description: `Ready Pips ${plan.name} Subscription`,
-      callback_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://www.readypips.com"}/signals/success`,
+      callback_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/signals/success`,
       redirect_mode: "TOP_WINDOW",
       branch: "Ready Pips - HQ",
       billing_address: {

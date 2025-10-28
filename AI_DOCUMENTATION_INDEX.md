@@ -59,7 +59,7 @@
 
 ### 👨‍💼 Admin/Operations
 1. Start: [AI_QUICK_START.md](./AI_QUICK_START.md)
-2. Access: `https://www.readypips.com/admin/ai-insights`
+2. Access: `http://localhost:3000/admin/ai-insights`
 3. Read: [AI_INSIGHTS_USER_ADMIN_GUIDE.md](./AI_INSIGHTS_USER_ADMIN_GUIDE.md) → "For Administrators"
 4. Run tests: `node scripts/test-ai-comprehensive.js`
 
@@ -86,13 +86,13 @@
 ### I want to...
 
 #### Check if Gemini AI is working
-1. Visit: `https://www.readypips.com/admin/ai-insights`
+1. Visit: `http://localhost:3000/admin/ai-insights`
 2. Look at "System Status" card
 3. Should show 🟢 "Healthy"
 4. Or run: `node scripts/test-ai-comprehensive.js`
 
 #### Monitor parse failures
-1. Visit: `https://www.readypips.com/admin/ai-insights`
+1. Visit: `http://localhost:3000/admin/ai-insights`
 2. Check "Parse Success Rate" card
 3. Check recent analyses table for "⚠️ Raw-only" status
 4. Read troubleshooting: [AI_INSIGHTS_USER_ADMIN_GUIDE.md](./AI_INSIGHTS_USER_ADMIN_GUIDE.md) → "Troubleshooting"
@@ -105,13 +105,13 @@
 5. Deploy via normal process
 
 #### Export system metrics
-1. Visit: `https://www.readypips.com/admin/ai-insights`
+1. Visit: `http://localhost:3000/admin/ai-insights`
 2. Click "Export" button (top right)
 3. File downloads as JSON
 4. Use for reports/analysis
 
 #### Debug a failed analysis
-1. Visit: `https://www.readypips.com/admin/ai-insights`
+1. Visit: `http://localhost:3000/admin/ai-insights`
 2. Find analysis in table (most recent first)
 3. Click row to expand
 4. See full analysis JSON preview
@@ -202,13 +202,13 @@ node scripts/test-ai-comprehensive.js
 node scripts/test-ai-insights.js
 
 # Check metrics via API
-curl https://www.readypips.com/api/ai-insights/metrics
+curl http://localhost:3000/api/ai-insights/metrics
 
 # Get recent analyses
-curl https://www.readypips.com/api/ai-insights/recent?limit=20
+curl http://localhost:3000/api/ai-insights/recent?limit=20
 
 # Get recent analyses with full details
-curl https://www.readypips.com/api/ai-insights/recent?limit=20&includeRaw=true
+curl http://localhost:3000/api/ai-insights/recent?limit=20&includeRaw=true
 ```
 
 ---

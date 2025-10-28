@@ -84,7 +84,7 @@ Add to your `.env.local` file:
 ```env
 GOOGLE_CLIENT_ID=your_client_id_here
 GOOGLE_CLIENT_SECRET=your_client_secret_here
-NEXTAUTH_URL=https://www.readypips.com  # Change to production URL when deployed
+NEXTAUTH_URL=http://localhost:3000  # Change to production URL when deployed
 NEXTAUTH_SECRET=generate_a_random_secret_here
 ```
 
@@ -143,7 +143,7 @@ Modify `components/auth-context.tsx` to integrate NextAuth session management wi
 
 ### Step 8: Configure Authorized Redirect URIs
 In Google Cloud Console, add these URLs to "Authorized redirect URIs":
-- Development: `https://www.readypips.com/api/auth/callback/google`
+- Development: `http://localhost:3000/api/auth/callback/google`
 - Production: `https://your-domain.com/api/auth/callback/google`
 
 ## Testing Checklist

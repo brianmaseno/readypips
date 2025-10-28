@@ -8,6 +8,8 @@ interface User {
   email: string;
   firstName: string;
   lastName: string;
+  phoneNumber?: string;
+  phone?: string;
   subscriptionStatus: 'active' | 'inactive' | 'expired';
   subscriptionType: 'basic' | 'premium' | 'pro' | 'free' | null;
   subscriptionEndDate?: Date;
@@ -47,6 +49,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: session.user.email,
           firstName: session.user.firstName,
           lastName: session.user.lastName,
+          phoneNumber: (session.user as any).phoneNumber,
+          phone: (session.user as any).phone,
           subscriptionStatus: session.user.subscriptionStatus as any,
           subscriptionType: session.user.subscriptionType as any,
           subscriptionEndDate: (session.user as any).subscriptionEndDate,

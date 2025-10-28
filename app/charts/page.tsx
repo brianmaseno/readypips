@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Navigation } from "@/components/navigation";
+import { Footer } from "@/components/footer";
 import { useAuth } from "@/components/auth-context";
 import { useRequireSubscription } from "@/hooks/use-subscription-access";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -485,6 +486,8 @@ export default function ChartsPage() {
           </div>
         )}
       </div>
+
+      <Footer />
     </div>
   );
 }

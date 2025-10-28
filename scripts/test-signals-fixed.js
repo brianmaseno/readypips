@@ -6,7 +6,7 @@ async function testSignalsAPI() {
 
         // Test the signals API
         console.log('\n1. Testing /api/signals endpoint...');
-        const signalsResponse = await fetch('https://www.readypips.com/api/signals');
+        const signalsResponse = await fetch('http://localhost:3000/api/signals');
 
         if (signalsResponse.ok) {
             const signalsData = await signalsResponse.json();
@@ -24,7 +24,7 @@ async function testSignalsAPI() {
 
         // Test signal generation
         console.log('\n2. Testing signal generation...');
-        const generateResponse = await fetch('https://www.readypips.com/api/signals', {
+        const generateResponse = await fetch('http://localhost:3000/api/signals', {
             method: 'POST'
         });
 

@@ -43,7 +43,7 @@ async function testSignalsAPI() {
 
 // Instructions for running this test
 console.log('\nTo run this test:');
-console.log('1. Open your browser to https://www.readypips.com');
+console.log('1. Open your browser to http://localhost:3000');
 console.log('2. Open Developer Tools (F12)');
 console.log('3. Go to Console tab');
 console.log('4. Copy and paste the testSignalsAPI function above');

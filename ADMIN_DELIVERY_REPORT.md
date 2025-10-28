@@ -36,7 +36,7 @@ node scripts/seed-admin.js
 ```
 
 ### 2️⃣ Login to Dashboard
-Navigate to: `https://www.readypips.com/admin/login`
+Navigate to: `http://localhost:3000/admin/login`
 
 Use the credentials from the seeder output
 

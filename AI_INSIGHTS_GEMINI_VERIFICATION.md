@@ -82,7 +82,7 @@ The AI Insights feature provides professional trading analysis by:
 
 **Example Request:**
 ```bash
-curl -X POST https://www.readypips.com/api/ai-insights \
+curl -X POST http://localhost:3000/api/ai-insights \
   -H "Content-Type: application/json" \
   -d '{
     "symbol": "EURUSD",
@@ -104,7 +104,7 @@ curl -X POST https://www.readypips.com/api/ai-insights \
 
 **Example:**
 ```bash
-curl https://www.readypips.com/api/ai-insights/metrics
+curl http://localhost:3000/api/ai-insights/metrics
 ```
 
 **Sample Response:**
@@ -133,7 +133,7 @@ curl https://www.readypips.com/api/ai-insights/metrics
 
 **Example:**
 ```bash
-curl https://www.readypips.com/api/ai-insights/recent?limit=20&includeRaw=true
+curl http://localhost:3000/api/ai-insights/recent?limit=20&includeRaw=true
 ```
 
 ---
@@ -178,7 +178,7 @@ curl https://www.readypips.com/api/ai-insights/recent?limit=20&includeRaw=true
 
 **Accessing Admin Dashboard:**
 ```
-https://www.readypips.com/admin/ai-insights
+http://localhost:3000/admin/ai-insights
 ```
 
 ---

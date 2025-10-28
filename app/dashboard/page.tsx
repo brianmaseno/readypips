@@ -32,6 +32,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useAuth } from "@/components/auth-context";
+import { PhoneNumberModal } from "@/components/phone-number-modal";
 
 interface Payment {
   id: string;
@@ -65,6 +66,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [selectedSymbol, setSelectedSymbol] = useState("FX:EURUSD");
   const [redirectAttempted, setRedirectAttempted] = useState(false);
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
 
@@ -98,6 +100,32 @@ export default function DashboardPage() {
     }
 
     if (user) {
+      // Check if user logged in with Google and has no phone number
+      const checkPhoneNumber = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch("/api/auth/verify", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            // Check if user logged in with Google (has googleId) and has no phone number
+            if (data.user.googleId && !data.user.phoneNumber) {
+              setShowPhoneModal(true);
+            }
+          }
+        } catch (error) {
+          console.error("Error checking phone number:", error);
+        }
+      };
+      
+      checkPhoneNumber();
+      
       // Redirect authenticated users to signals page
       console.log("✅ User authenticated, redirecting to signals");
       router.push("/signals");
@@ -466,6 +494,15 @@ export default function DashboardPage() {
             </Card>
           )}
         </div>
+
+        {/* Phone Number Modal for Google Login Users (excluding admins) */}
+        {showPhoneModal && !user.isAdmin && user.role !== 'admin' && user.role !== 'superadmin' && (
+          <PhoneNumberModal
+            isOpen={showPhoneModal}
+            onClose={() => setShowPhoneModal(false)}
+            userEmail={user.email}
+          />
+        )}
       </div>
     );
   }

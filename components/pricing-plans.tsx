@@ -24,8 +24,8 @@ interface PricingPlansProps {
 const plans = [
   {
     name: "Weekly",
-    price: "$13",
-    priceKES: "KES 1,690",
+    price: "KES 700",
+    priceKES: "KES 700",
     period: "/week",
     duration: 7,
     features: [
@@ -47,8 +47,8 @@ const plans = [
   },
   {
     name: "Monthly",
-    price: "$29",
-    priceKES: "KES 3,770",
+    price: "KES 1,000",
+    priceKES: "KES 1,000",
     period: "/month",
     duration: 30,
     features: [
@@ -73,8 +73,8 @@ const plans = [
   },
   {
     name: "3 Months",
-    price: "$79",
-    priceKES: "KES 10,270",
+    price: "KES 1,500",
+    priceKES: "KES 1,500",
     period: "/3 months",
     duration: 90,
     features: [
@@ -88,7 +88,7 @@ const plans = [
       "Portfolio tracking",
       "Extended analysis",
       "90-day access",
-      "Save $8 vs monthly!",
+      "Save KES 500 vs monthly!",
     ],
     benefits: [
       "Best value for serious traders",

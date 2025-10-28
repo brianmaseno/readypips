@@ -29,7 +29,7 @@ if (fs.existsSync(envPath)) {
 }
 
 console.log('\n📋 Authentication Flow Test:');
-console.log('1. Open browser and go to https://www.readypips.com');
+console.log('1. Open browser and go to http://localhost:3000');
 console.log('2. Check browser console for auth logs');
 console.log('3. Check if token exists in localStorage');
 console.log('4. Try accessing /dashboard directly');
@@ -40,7 +40,7 @@ console.log('1. Open browser dev tools (F12)');
 console.log('2. Go to Application/Storage tab');
 console.log('3. Check Local Storage for "token"');
 console.log('4. If token exists, copy it and test with:');
-console.log('   curl -X POST https://www.readypips.com/api/auth/verify \\');
+console.log('   curl -X POST http://localhost:3000/api/auth/verify \\');
 console.log('     -H "Content-Type: application/json" \\');
 console.log('     -d \'{"token":"YOUR_TOKEN_HERE"}\'');
 

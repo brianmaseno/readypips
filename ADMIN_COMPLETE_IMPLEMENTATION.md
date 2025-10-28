@@ -442,7 +442,7 @@ Output will show: Email, Temporary Password, Role
 
 ### Step 2: Navigate to Login
 ```
-https://www.readypips.com/admin/login
+http://localhost:3000/admin/login
 ```
 
 ### Step 3: Start Managing

@@ -43,7 +43,20 @@ export default function SubscriptionManagement({ admin }: { admin: any }) {
         const active = subs.filter((s: Subscription) => s.status === 'active').length;
         const expired = subs.filter((s: Subscription) => s.status === 'expired').length;
         const trial = subs.filter((s: Subscription) => s.status === 'trial').length;
-        const revenue = subs.reduce((sum: number, s: Subscription) => sum + (s.price || 0), 0);
+        
+        // Fetch real revenue from the revenue API
+        const revenueResponse = await fetch('/api/admin/revenue', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        
+        let revenue = 0;
+        if (revenueResponse.ok) {
+          const revenueData = await revenueResponse.json();
+          revenue = revenueData.revenue?.total || 0;
+        } else {
+          // Fallback to subscription prices if revenue API fails
+          revenue = subs.reduce((sum: number, s: Subscription) => sum + (s.price || 0), 0);
+        }
         
         setStats({ active, expired, trial, revenue });
       }
@@ -73,7 +86,7 @@ export default function SubscriptionManagement({ admin }: { admin: any }) {
         <StatBox title="Active Subscriptions" value={stats.active.toString()} color="bg-green-100" />
         <StatBox title="Expired" value={stats.expired.toString()} color="bg-red-100" />
         <StatBox title="Trial" value={stats.trial.toString()} color="bg-yellow-100" />
-        <StatBox title="Total Revenue" value={`$${stats.revenue.toFixed(2)}`} color="bg-blue-100" />
+        <StatBox title="Total Revenue" value={`KES ${stats.revenue.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} color="bg-blue-100" />
       </div>
 
       {/* Active Subscriptions */}
@@ -110,7 +123,7 @@ export default function SubscriptionManagement({ admin }: { admin: any }) {
                         {sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
                       </span>
                     </td>
-                    <td className="px-4 py-3 font-medium">${sub.price.toFixed(2)}</td>
+                    <td className="px-4 py-3 font-medium">KES {sub.price.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     <td className="px-4 py-3 text-gray-600">{new Date(sub.startDate).toLocaleDateString()}</td>
                     <td className="px-4 py-3 text-gray-600">{new Date(sub.endDate).toLocaleDateString()}</td>
                   </tr>

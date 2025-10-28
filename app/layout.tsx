@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { SignalServiceProvider } from "@/components/signal-service-provider";
 import { AuthProvider } from "@/components/auth-context";
+import { PhoneCheckWrapper } from "@/components/phone-check-wrapper";
 import { FloatingWhatsApp } from "@/components/floating-whatsapp";
 import ClientSessionProvider from "@/components/client-session-provider";
 
@@ -156,10 +157,12 @@ export default function RootLayout({
         >
           <ClientSessionProvider>
             <AuthProvider>
-              <SignalServiceProvider />
-              {children}
-              <Toaster />
-              <FloatingWhatsApp />
+              <PhoneCheckWrapper>
+                <SignalServiceProvider />
+                {children}
+                <Toaster />
+                <FloatingWhatsApp />
+              </PhoneCheckWrapper>
             </AuthProvider>
           </ClientSessionProvider>
         </ThemeProvider>

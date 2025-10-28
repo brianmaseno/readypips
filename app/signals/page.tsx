@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Navigation } from "@/components/navigation";
+import { Footer } from "@/components/footer";
 import { useAuth } from "@/components/auth-context";
 import PricingPlans from "@/components/pricing-plans";
 import { toast } from "sonner";
@@ -578,6 +579,8 @@ export default function SignalsPage() {
           </Card>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

@@ -5,7 +5,7 @@
  * Tests the Gemini integration for market analysis
  */
 
-const BASE_URL = "https://www.readypips.com";
+const BASE_URL = "http://localhost:3000";
 
 // Sample market data for testing
 const testData = {

@@ -423,7 +423,7 @@ node scripts/seed-admin.js
 ```
 
 ### To Access Admin Dashboard
-Navigate to: `https://www.readypips.com/admin/login`
+Navigate to: `http://localhost:3000/admin/login`
 
 ### To Create Another Admin
 1. Login to dashboard

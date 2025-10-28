@@ -110,7 +110,7 @@ node scripts/seed-admin.js
 **Output:** Default admin email & temporary password
 
 ### Step 2: Login
-Go to: `https://www.readypips.com/admin/login`
+Go to: `http://localhost:3000/admin/login`
 Enter credentials from seeder output
 
 ### Step 3: Change Password & Create Users
@@ -381,7 +381,7 @@ MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/database
 JWT_SECRET=your-super-secret-key-min-32-chars
 
 # App URL (for password reset links)
-NEXT_PUBLIC_APP_URL=https://www.readypips.com
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 # Email Service (if using)
 SMTP_HOST=smtp.gmail.com
@@ -396,9 +396,9 @@ SMTP_PASSWORD=your-app-password
 
 | URL | Purpose |
 |-----|---------|
-| `https://www.readypips.com/admin/login` | Admin login |
-| `https://www.readypips.com/admin/forgot-password` | Forgot password |
-| `https://www.readypips.com/admin/dashboard` | Main dashboard |
+| `http://localhost:3000/admin/login` | Admin login |
+| `http://localhost:3000/admin/forgot-password` | Forgot password |
+| `http://localhost:3000/admin/dashboard` | Main dashboard |
 
 ---
 
@@ -496,7 +496,7 @@ Your professional admin dashboard is **fully functional** and ready to use.
 
 **Start here:**
 1. Run: `node scripts/seed-admin.js`
-2. Visit: `https://www.readypips.com/admin/login`
+2. Visit: `http://localhost:3000/admin/login`
 3. Create more admins: Admin Management section
 4. Configure settings: System Settings section
 5. Monitor data: Dashboard Overview section

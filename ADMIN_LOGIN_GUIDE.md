@@ -10,7 +10,7 @@
 ## 🚀 Quick Start
 
 1. **Navigate to Admin Login:**
-   - Go to: https://www.readypips.com/admin/login
+   - Go to: http://localhost:3000/admin/login
 
 2. **Enter Credentials:**
    - Email: `admin@readypips.com`

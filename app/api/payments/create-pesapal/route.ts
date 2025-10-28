@@ -54,9 +54,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert USD to KES (approximate rate, in production use real-time rates)
-    const usdToKesRate = 130; // 1 USD = 130 KES (approximate current rate)
-    const amountInKes = Math.round(subscriptionPlan.price * usdToKesRate); // Amount in KES (not cents)
+    // Get exact KES amounts for each plan (no conversion, use exact amounts)
+    const kesAmounts: Record<string, number> = {
+      weekly: 700,       // KES 700
+      monthly: 1000,     // KES 1,000
+      "3months": 1500,   // KES 1,500
+    };
+
+    const amountInKes = kesAmounts[planId] || subscriptionPlan.price;
 
     try {
       console.log("🔍 [Create Pesapal] Initializing Pesapal transaction with:", {

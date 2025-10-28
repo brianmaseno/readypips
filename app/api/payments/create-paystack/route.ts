@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
     const planMapping: Record<string, string> = {
       weekly: "weekly",
       monthly: "monthly",
-      annually: "annually",
+      "3 months": "3months",
+      "3months": "3months",
     };
 
     const planId = planMapping[plan.toLowerCase()];
@@ -53,9 +54,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert USD to KES (approximate rate, in production use real-time rates)
-    const usdToKesRate = 130; // 1 USD = 130 KES (approximate current rate)
-    const amountInKes = Math.round(subscriptionPlan.price * usdToKesRate * 100); // Convert to cents (smallest unit)
+    // Get exact KES amounts for each plan (in kobo - smallest unit for Paystack)
+    const kesAmounts: Record<string, number> = {
+      weekly: 70000,       // KES 700 * 100 (in kobo)
+      monthly: 100000,     // KES 1,000 * 100 (in kobo)
+      "3months": 150000,   // KES 1,500 * 100 (in kobo)
+    };
+
+    const amountInKes = kesAmounts[planId] || Math.round(subscriptionPlan.price * 100);
 
     try {
       // Initialize Paystack transaction

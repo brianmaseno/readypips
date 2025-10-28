@@ -16,11 +16,19 @@ interface DashboardStats {
   supportTickets: number;
 }
 
+interface PlanRevenue {
+  name: string;
+  revenue: string;
+  percentage: number;
+  count: number;
+}
+
 export default function DashboardOverview({ admin }: { admin: any }) {
   const { toast } = useToast();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [recentUsers, setRecentUsers] = useState<any[]>([]);
+  const [planRevenue, setPlanRevenue] = useState<PlanRevenue[]>([]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -32,11 +40,14 @@ export default function DashboardOverview({ admin }: { admin: any }) {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const [statsRes, usersRes] = await Promise.all([
+      const [statsRes, usersRes, planRevenueRes] = await Promise.all([
         fetch('/api/admin/dashboard/stats', {
           headers: { Authorization: `Bearer ${token}` },
         }),
         fetch('/api/admin/dashboard/recent-users', {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch('/api/admin/dashboard/plan-revenue', {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
@@ -49,6 +60,11 @@ export default function DashboardOverview({ admin }: { admin: any }) {
       if (usersRes.ok) {
         const data = await usersRes.json();
         setRecentUsers(data.users || []);
+      }
+
+      if (planRevenueRes.ok) {
+        const data = await planRevenueRes.json();
+        setPlanRevenue(data.plans || []);
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -82,9 +98,9 @@ export default function DashboardOverview({ admin }: { admin: any }) {
         />
         <MetricCard
           title="Revenue (Monthly)"
-          value={`$${(stats?.totalRevenue || 0).toFixed(2)}`}
+          value={`KES ${(stats?.totalRevenue || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           icon="DollarSign"
-          subtitle={`Weekly: $${(stats?.weeklyRevenue || 0).toFixed(2)}`}
+          subtitle={`Weekly: KES ${(stats?.weeklyRevenue || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
         />
         <MetricCard
           title="Tool Access"
@@ -134,7 +150,7 @@ export default function DashboardOverview({ admin }: { admin: any }) {
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Revenue Today</span>
               <span className="font-semibold text-lg">
-                ${(stats?.dailyRevenue || 0).toFixed(2)}
+                KES {(stats?.dailyRevenue || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
             <div className="flex justify-between items-center">
@@ -148,9 +164,18 @@ export default function DashboardOverview({ admin }: { admin: any }) {
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="font-semibold text-gray-900 mb-4">Top Plans by Revenue</h3>
           <div className="space-y-3">
-            <PlanItem name="Premium" revenue="$4,250" percentage={45} />
-            <PlanItem name="Pro" revenue="$3,120" percentage={33} />
-            <PlanItem name="Basic" revenue="$2,180" percentage={22} />
+            {planRevenue.length > 0 ? (
+              planRevenue.slice(0, 3).map((plan, index) => (
+                <PlanItem 
+                  key={index}
+                  name={plan.name} 
+                  revenue={plan.revenue} 
+                  percentage={plan.percentage} 
+                />
+              ))
+            ) : (
+              <p className="text-sm text-gray-500">No revenue data available</p>
+            )}
           </div>
         </div>
       </div>

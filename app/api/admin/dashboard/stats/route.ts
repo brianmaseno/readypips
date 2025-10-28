@@ -46,28 +46,69 @@ export async function GET(request: NextRequest) {
       status: "trial"
     });
 
-    // Calculate revenue
-    const subscriptionData = await db.collection("subscriptions").find({
-      status: "active"
+    // Calculate revenue from payments collection in KES
+    const completedPayments = await db.collection("payments").find({
+      status: "completed"
     }).toArray();
     
-    const totalRevenue = subscriptionData.reduce((sum: number, sub: any) => sum + (sub.price || 0), 0);
+    // Total revenue from all completed payments in KES
+    const totalRevenue = completedPayments.reduce((sum: number, payment: any) => {
+      let amount = 0;
+      if (typeof payment.amount === 'number') {
+        amount = payment.amount;
+      } else if (typeof payment.amount === 'string') {
+        amount = parseFloat(payment.amount.replace(/[^0-9.]/g, '') || '0');
+      }
+      
+      // If amount is in USD, convert to KES (1 USD = ~150 KES)
+      if (payment.currency === 'USD') {
+        amount = amount * 150;
+      }
+      
+      return sum + amount;
+    }, 0);
     
-    // Calculate weekly revenue (last 7 days)
+    // Calculate weekly revenue (last 7 days) in KES
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const weeklyData = await db.collection("subscriptions").find({
-      status: "active",
-      startDate: { $gte: weekAgo }
+    const weeklyPayments = await db.collection("payments").find({
+      status: "completed",
+      createdAt: { $gte: weekAgo }
     }).toArray();
-    const weeklyRevenue = weeklyData.reduce((sum: number, sub: any) => sum + (sub.price || 0), 0);
+    const weeklyRevenue = weeklyPayments.reduce((sum: number, payment: any) => {
+      let amount = 0;
+      if (typeof payment.amount === 'number') {
+        amount = payment.amount;
+      } else if (typeof payment.amount === 'string') {
+        amount = parseFloat(payment.amount.replace(/[^0-9.]/g, '') || '0');
+      }
+      
+      if (payment.currency === 'USD') {
+        amount = amount * 150;
+      }
+      
+      return sum + amount;
+    }, 0);
     
-    // Calculate daily revenue (last 24 hours)
+    // Calculate daily revenue (last 24 hours) in KES
     const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const dailyData = await db.collection("subscriptions").find({
-      status: "active",
-      startDate: { $gte: dayAgo }
+    const dailyPayments = await db.collection("payments").find({
+      status: "completed",
+      createdAt: { $gte: dayAgo }
     }).toArray();
-    const dailyRevenue = dailyData.reduce((sum: number, sub: any) => sum + (sub.price || 0), 0);
+    const dailyRevenue = dailyPayments.reduce((sum: number, payment: any) => {
+      let amount = 0;
+      if (typeof payment.amount === 'number') {
+        amount = payment.amount;
+      } else if (typeof payment.amount === 'string') {
+        amount = parseFloat(payment.amount.replace(/[^0-9.]/g, '') || '0');
+      }
+      
+      if (payment.currency === 'USD') {
+        amount = amount * 150;
+      }
+      
+      return sum + amount;
+    }, 0);
 
     // Tool access metrics
     const toolAccessMetrics = await db.collection("tools").countDocuments({ isActive: true });

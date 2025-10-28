@@ -24,7 +24,7 @@ Role:     super_admin
 
 ### 2. Login to Admin Dashboard
 
-Navigate to: `https://www.readypips.com/admin/login`
+Navigate to: `http://localhost:3000/admin/login`
 
 Enter the credentials from the seeder output.
 
@@ -274,7 +274,7 @@ JWT_SECRET=your-super-secret-key-here
 MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/dbname
 
 # App URL (for password reset links)
-NEXT_PUBLIC_APP_URL=https://www.readypips.com
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 # Email (if using email service)
 SMTP_HOST=smtp.gmail.com

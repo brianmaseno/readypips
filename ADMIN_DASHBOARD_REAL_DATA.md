@@ -108,7 +108,7 @@ npm run dev
 ```
 
 ### Step 2: Login to Admin Dashboard
-- URL: https://www.readypips.com/admin/login
+- URL: http://localhost:3000/admin/login
 - Email: admin@readypips.com
 - Password: 1234567890
 
@@ -117,7 +117,7 @@ After logging in, you can seed the database with demo data by calling the seed e
 
 **Using curl**:
 ```bash
-curl -X POST https://www.readypips.com/api/admin/seed-data \
+curl -X POST http://localhost:3000/api/admin/seed-data \
   -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
   -H "Content-Type: application/json"
 ```

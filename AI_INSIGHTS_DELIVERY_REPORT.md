@@ -204,7 +204,7 @@ Contents:
 ╚════════════════════════════════════════════════════════════════╝
 
 Test Timestamp: October 16, 2025, 14:40 UTC
-Environment: Production-like (https://www.readypips.com)
+Environment: Production-like (http://localhost:3000)
 Status: ✅ ALL PASSING
 
 ╔════════════════════════════════════════════════════════════════╗

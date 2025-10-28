@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
+import { getDatabase } from "@/lib/mongodb";
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,14 +25,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const db = await getDatabase();
+
     // Check if reset token exists and is valid
-    const resetRecord = await prisma.passwordReset.findFirst({
-      where: {
-        token: token,
-        expiresAt: {
-          gt: new Date(),
-        },
-      },
+    const resetRecord = await db.collection('passwordResets').findOne({
+      token: token,
+      expiresAt: { $gt: new Date() }
     });
 
     if (!resetRecord) {
@@ -46,14 +44,14 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Update user password
-    await prisma.user.update({
-      where: { email: resetRecord.email },
-      data: { password: hashedPassword },
-    });
+    await db.collection('users').updateOne(
+      { email: resetRecord.email },
+      { $set: { password: hashedPassword, updatedAt: new Date() } }
+    );
 
     // Delete used reset token
-    await prisma.passwordReset.delete({
-      where: { id: resetRecord.id },
+    await db.collection('passwordResets').deleteOne({
+      _id: resetRecord._id
     });
 
     return NextResponse.json(

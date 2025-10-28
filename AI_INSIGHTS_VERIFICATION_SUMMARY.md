@@ -45,7 +45,7 @@
 
 **Usage:**
 ```bash
-curl https://www.readypips.com/api/ai-insights/metrics
+curl http://localhost:3000/api/ai-insights/metrics
 ```
 
 **Sample Response:**
@@ -78,7 +78,7 @@ curl https://www.readypips.com/api/ai-insights/metrics
 
 **Usage:**
 ```bash
-curl https://www.readypips.com/api/ai-insights/recent?limit=20&includeRaw=true
+curl http://localhost:3000/api/ai-insights/recent?limit=20&includeRaw=true
 ```
 
 ---
@@ -86,7 +86,7 @@ curl https://www.readypips.com/api/ai-insights/recent?limit=20&includeRaw=true
 ### 5. **Admin Dashboard** ✅
 **File**: `app/admin/ai-insights/page.tsx` (NEW)
 
-**URL**: `https://www.readypips.com/admin/ai-insights`
+**URL**: `http://localhost:3000/admin/ai-insights`
 
 **Features:**
 - Real-time metrics display (auto-refresh every 30s)

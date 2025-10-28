@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Navigation } from "@/components/navigation";
+import { Footer } from "@/components/footer";
 import { toast } from "sonner";
 import {
   Copy,
@@ -498,6 +499,8 @@ export default function CopyTradingPage() {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 }

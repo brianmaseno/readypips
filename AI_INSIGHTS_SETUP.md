@@ -289,7 +289,7 @@ When deploying to Vercel:
 1. ✅ Get valid Gemini API key from Google AI Studio
 2. ✅ Update `.env` file with new key
 3. ✅ Test with: `node scripts/test-ai-insights.js`
-4. ✅ Verify working in browser at https://www.readypips.com/charts
+4. ✅ Verify working in browser at http://localhost:3000/charts
 5. ✅ Deploy to Vercel with updated environment variables
 
 ## Support

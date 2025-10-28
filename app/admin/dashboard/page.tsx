@@ -99,8 +99,8 @@ export default function AdminDashboard() {
       );
     }
     
-    // Force redirect with page reload to clear all cache
-    window.location.href = '/login';
+    // Redirect to homepage instead of login
+    window.location.href = '/';
   };
 
   if (loading) {
