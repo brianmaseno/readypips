@@ -1,180 +1,90 @@
 "use client";
 
 import Link from "next/link";
-import { Heart } from "lucide-react";
 
 export function Footer() {
-  const currentYear = new Date().getFullYear();
-
   return (
-    <footer className="bg-white dark:bg-black border-t border-gray-200 dark:border-gray-800">
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          {/* Brand */}
+    <footer className="py-12 px-4 bg-gray-900 text-white">
+      <div className="container mx-auto">
+        <div className="grid md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-bold text-black dark:text-white mb-4">
-              Ready Pips
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              AI-powered trading signals platform for forex, crypto, and stocks.
+            <div className="flex items-center mb-4">
+              <div className="relative h-8">
+                <img
+                  src="/logo-dark.png"
+                  alt="Ready Pips Logo"
+                  className="h-8 w-auto"
+                />
+              </div>
+            </div>
+            <p className="text-gray-400">
+              Unlock Powerful AI-Driven Trading Signals for a Competitive Edge
             </p>
           </div>
-
-          {/* Company */}
           <div>
-            <h4 className="font-semibold text-black dark:text-white mb-4">
-              Company
-            </h4>
-            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+            <h3 className="font-semibold mb-4">Product</h3>
+            <ul className="space-y-2 text-gray-400">
               <li>
-                <Link
-                  href="/signals"
-                  className="hover:text-green-600 transition-colors"
-                >
-                  Trading Signals
+                <Link href="/signals" className="hover:text-white">
+                  Signals Tool
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/charts"
-                  className="hover:text-green-600 transition-colors"
-                >
-                  Charts & Analytics
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/copy-trading"
-                  className="hover:text-green-600 transition-colors"
-                >
+                <Link href="/copy-trading" className="hover:text-white">
                   Copy Trading
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/admin/login"
-                  className="hover:text-green-600 transition-colors"
-                >
+                <Link href="/charts" className="hover:text-white">
+                  Charts
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-4">Support</h3>
+            <ul className="space-y-2 text-gray-400">
+              <li>
+                <Link href="/support" className="hover:text-white">
+                  Help Center
+                </Link>
+              </li>
+              <li>
+                <Link href="/support" className="hover:text-white">
+                  Contact Us
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-4">Company</h3>
+            <ul className="space-y-2 text-gray-400">
+              <li>
+                <Link href="/admin/login" className="hover:text-white">
                   Admin Dashboard
                 </Link>
               </li>
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div>
-            <h4 className="font-semibold text-black dark:text-white mb-4">
-              Resources
-            </h4>
-            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
               <li>
-                <Link
-                  href="/support"
-                  className="hover:text-green-600 transition-colors"
-                >
-                  Support
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/faqs"
-                  className="hover:text-green-600 transition-colors"
-                >
-                  FAQs
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/testimonials"
-                  className="hover:text-green-600 transition-colors"
-                >
-                  Testimonials
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/privacy-policy"
-                  className="hover:text-green-600 transition-colors"
-                >
+                <Link href="/privacy-policy" className="hover:text-white">
                   Privacy Policy
                 </Link>
-              </li>
-              <li>
-                <Link
-                  href="/terms-conditions"
-                  className="hover:text-green-600 transition-colors"
-                >
-                  Terms & Conditions
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h4 className="font-semibold text-black dark:text-white mb-4">
-              Contact
-            </h4>
-            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-              <li>
-                <a
-                  href="mailto:info@readypips.com"
-                  className="hover:text-green-600 transition-colors"
-                >
-                  Email Support
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://t.me/tradecafeafrica"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-green-600 transition-colors"
-                >
-                  Telegram Community
-                </a>
               </li>
             </ul>
           </div>
         </div>
-
-        {/* Divider */}
-        <div className="border-t border-gray-200 dark:border-gray-800 py-8">
-          {/* Bottom Footer */}
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              <p>
-                © {currentYear} Ready Pips. All rights reserved. Made with{" "}
-                <Heart className="w-4 h-4 inline text-red-600" /> for traders.
-              </p>
-              <p className="mt-2">
-                Developed and maintained by{" "}
-                <a
-                  href="https://www.maxson.co.ke/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-green-600 hover:text-green-700 font-semibold transition-colors"
-                >
-                  Maxson Programming Limited
-                </a>
-              </p>
-            </div>
-            <div className="flex space-x-6 mt-4 md:mt-0 text-sm text-gray-600 dark:text-gray-400">
-              <Link
-                href="/privacy-policy"
-                className="hover:text-green-600 transition-colors"
-              >
-                Privacy
-              </Link>
-              <Link
-                href="/terms-conditions"
-                className="hover:text-green-600 transition-colors"
-              >
-                Terms
-              </Link>
-            </div>
-          </div>
+        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+          <p>&copy; 2025 Ready Pips. All rights reserved.</p>
+          <p className="mt-2">
+            Developed and maintained by{" "}
+            <a
+              href="https://www.maxson.co.ke/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-green-400 hover:text-green-300 font-semibold transition-colors"
+            >
+              Maxson Programming Limited
+            </a>
+          </p>
         </div>
       </div>
     </footer>
