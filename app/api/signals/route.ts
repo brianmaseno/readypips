@@ -10,12 +10,15 @@ export async function GET(request: NextRequest) {
     // Get query parameters
     const { searchParams } = new URL(request.url);
     const symbol = searchParams.get("symbol");
+    const pair = searchParams.get("pair"); // Support 'pair' parameter too
     const type = searchParams.get("type");
     const limit = parseInt(searchParams.get("limit") || "50");
 
-    // Build query
+    // Build query - signals collection uses 'symbol' field
     const query: any = { isActive: true };
+    // Support both 'symbol' and 'pair' parameters (both map to 'symbol' field)
     if (symbol) query.symbol = symbol;
+    if (pair) query.symbol = pair; // Map 'pair' param to 'symbol' field
     if (type) query.type = type;
 
     // Get signals from database
@@ -38,10 +41,12 @@ export async function GET(request: NextRequest) {
         .limit(limit)
         .toArray();
 
-      return NextResponse.json(newSignals);
+      // Return in format expected by live-chart component
+      return NextResponse.json({ signals: newSignals });
     }
 
-    return NextResponse.json(signals);
+    // Return in format expected by live-chart component
+    return NextResponse.json({ signals: signals });
   } catch (error) {
     console.error("Error fetching signals:", error);
     return NextResponse.json(

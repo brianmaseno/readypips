@@ -274,6 +274,57 @@ export default function DashboardPage() {
             </p>
           </div>
 
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <Link href="/chart" className="block">
+              <Card className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all cursor-pointer border-0 shadow-lg">
+                <CardContent className="pt-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-white bg-opacity-20 rounded-lg">
+                      <Activity className="h-8 w-8 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white">Live Chart</h3>
+                      <p className="text-sm text-blue-100">Real-time trading analysis</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+            
+            <Link href="/signals" className="block">
+              <Card className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transition-all cursor-pointer border-0 shadow-lg">
+                <CardContent className="pt-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-white bg-opacity-20 rounded-lg">
+                      <TrendingUp className="h-8 w-8 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white">Signals</h3>
+                      <p className="text-sm text-green-100">View all trading signals</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+            
+            <Link href="/insights" className="block">
+              <Card className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 transition-all cursor-pointer border-0 shadow-lg">
+                <CardContent className="pt-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-white bg-opacity-20 rounded-lg">
+                      <Target className="h-8 w-8 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white">AI Insights</h3>
+                      <p className="text-sm text-purple-100">Smart market analysis</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card className="bg-white dark:bg-gray-800 border-green-200 dark:border-green-800">

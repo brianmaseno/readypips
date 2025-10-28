@@ -30,10 +30,16 @@ interface EmailOptions {
 
 // Create nodemailer transporter
 const getEmailTransporter = () => {
-  const host = process.env.SMTP_HOST || "mail.smtp2go.com";
-  const port = parseInt(process.env.SMTP_PORT || "465");
+  const host = process.env.SMTP_HOST || "smtp.hostinger.com";
+  const port = parseInt(process.env.SMTP_PORT || "587");
   const user = process.env.SMTP_USER || "";
   const pass = process.env.SMTP_PASS || "";
+
+  console.log('📧 [Email Notifications] SMTP Configuration:');
+  console.log('  Host:', host);
+  console.log('  Port:', port);
+  console.log('  User:', user || 'NOT SET');
+  console.log('  Pass:', pass ? '***SET***' : 'NOT SET');
 
   if (!user || !pass) {
     console.warn("⚠️ SMTP credentials not configured in environment variables");
@@ -42,11 +48,14 @@ const getEmailTransporter = () => {
   return nodemailer.createTransport({
     host,
     port,
-    secure: port === 465, // true for 465, false for other ports
+    secure: false, // Use TLS for port 587
     auth: {
       user,
       pass,
     },
+    tls: {
+      rejectUnauthorized: false // Accept self-signed certificates
+    }
   });
 };
 

@@ -17,6 +17,8 @@ import {
   MessageSquare,
   Shield,
   FileText,
+  TrendingUp,
+  Activity,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -45,10 +47,16 @@ export function Navigation() {
 
   const navigationItems = [
     {
-      name: "Signals Tool",
+      name: "Live Chart",
+      href: "/chart",
+      icon: Activity,
+      description: "Real-time trading chart",
+    },
+    {
+      name: "Signals",
       href: "/signals",
-      icon: AreaChart,
-      description: "Trading signals & subscription",
+      icon: TrendingUp,
+      description: "Trading signals & alerts",
     },
     {
       name: "Copy Trading",
