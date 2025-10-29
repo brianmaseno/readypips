@@ -90,10 +90,10 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // If no subscription type set, default to free plan with 3-day trial
+    // If no subscription type set, default to free plan with 1-day trial
     if (!user.subscriptionType) {
       const newTrialEndDate = new Date();
-      newTrialEndDate.setDate(newTrialEndDate.getDate() + 3);
+      newTrialEndDate.setDate(newTrialEndDate.getDate() + 1);
       
       await db.collection("users").updateOne(
         { _id: userId },
@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
       user.subscriptionStatus = "active";
       user.subscriptionType = "free";
       user.freeTrialEndDate = newTrialEndDate;
-      freeTrialDaysRemaining = 3;
+      freeTrialDaysRemaining = 1;
     }
 
     return NextResponse.json({

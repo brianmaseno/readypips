@@ -51,9 +51,9 @@ export const authOptions: NextAuthOptions = {
           // Create new user with Google OAuth
           const googleProfile = profile as any;
           
-          // Set free trial end date to 3 days from now
+          // Set free trial end date to 1 day from now
           const freeTrialEndDate = new Date();
-          freeTrialEndDate.setDate(freeTrialEndDate.getDate() + 3);
+          freeTrialEndDate.setDate(freeTrialEndDate.getDate() + 1);
           
           const newUser = {
             email: user.email!,
@@ -94,7 +94,7 @@ export const authOptions: NextAuthOptions = {
           // If user doesn't have a free trial end date, add one
           if (!existingUser.freeTrialEndDate && (!existingUser.subscriptionType || existingUser.subscriptionType === 'free')) {
             const freeTrialEndDate = new Date();
-            freeTrialEndDate.setDate(freeTrialEndDate.getDate() + 3);
+            freeTrialEndDate.setDate(freeTrialEndDate.getDate() + 1);
             updateData.freeTrialEndDate = freeTrialEndDate;
             updateData.subscriptionStatus = "active";
             updateData.subscriptionType = "free";

@@ -15,7 +15,7 @@ export interface User {
   subscriptionType: "free" | "basic" | "premium" | "pro" | null;
   subscriptionEndDate?: Date;
   subscriptionStartDate?: Date;
-  freeTrialEndDate?: Date; // 3-day free trial for new users
+  freeTrialEndDate?: Date; // 1-day free trial for new users
   // Pending subscription (scheduled to activate after current expires)
   pendingSubscription?: {
     type: "basic" | "premium" | "pro";
@@ -62,18 +62,18 @@ export async function createUser(
   const db = await getDatabase();
   const hashedPassword = await hashPassword(userData.password!);
 
-  // Calculate 3-day free trial end date
+  // Calculate 1-day free trial end date
   const freeTrialEndDate = new Date();
-  freeTrialEndDate.setDate(freeTrialEndDate.getDate() + 3);
+  freeTrialEndDate.setDate(freeTrialEndDate.getDate() + 1);
 
   const user = {
     ...userData,
     password: hashedPassword,
-    // Default to free plan for all new users with 3-day trial
+    // Default to free plan for all new users with 1-day trial
     subscriptionStatus: "active" as "active" | "inactive" | "expired",
     subscriptionType: "free" as "free" | "basic" | "premium" | "pro" | null,
     subscriptionEndDate: undefined,
-    freeTrialEndDate, // 3-day free trial
+    freeTrialEndDate, // 1-day free trial
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -93,7 +93,7 @@ export async function findUser(email: string): Promise<User | null> {
     password: user.password,
     firstName: user.firstName,
     lastName: user.lastName,
-    phoneNumber: user.phoneNumber,
+    phoneNumber: user.phoneNumber || user.phone,
     subscriptionStatus: user.subscriptionStatus || "inactive",
     subscriptionType: user.subscriptionType || null,
     subscriptionEndDate: user.subscriptionEndDate,
@@ -121,7 +121,7 @@ export async function findUserById(id: string): Promise<User | null> {
       password: admin.password,
       firstName: admin.firstName,
       lastName: admin.lastName,
-      phoneNumber: admin.phoneNumber,
+      phoneNumber: admin.phoneNumber || admin.phone,
       subscriptionStatus: "active" as any, // Admins always have active status
       subscriptionType: null,
       emailVerified: true,
@@ -144,7 +144,7 @@ export async function findUserById(id: string): Promise<User | null> {
     password: user.password,
     firstName: user.firstName,
     lastName: user.lastName,
-    phoneNumber: user.phoneNumber,
+    phoneNumber: user.phoneNumber || user.phone,
     subscriptionStatus: user.subscriptionStatus || "inactive",
     subscriptionType: user.subscriptionType || null,
     subscriptionEndDate: user.subscriptionEndDate,

@@ -50,6 +50,7 @@ export default function ProfilePage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [subscriptionInfo, setSubscriptionInfo] = useState<SubscriptionInfo | null>(null);
   const [loadingSubscription, setLoadingSubscription] = useState(true);
@@ -62,6 +63,7 @@ export default function ProfilePage() {
     setFirstName(user.firstName || "");
     setLastName(user.lastName || "");
     setEmail(user.email || "");
+    setPhoneNumber(user.phoneNumber || "");
     
     // Fetch subscription info
     fetchSubscriptionInfo();
@@ -221,6 +223,20 @@ export default function ProfilePage() {
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       Email cannot be changed
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+                      Phone Number
+                    </label>
+                    <Input 
+                      value={phoneNumber || "Not provided"} 
+                      readOnly 
+                      className="bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-700"
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Phone number cannot be changed
                     </p>
                   </div>
 
@@ -517,16 +533,16 @@ export default function ProfilePage() {
                 <Button 
                   variant="outline" 
                   className="w-full justify-start"
-                  onClick={() => router.push("/signals")}
+                  onClick={() => router.push("/chart")}
                 >
-                  View Signals
+                  Live Trading Chart
                 </Button>
                 <Button 
                   variant="outline" 
                   className="w-full justify-start"
-                  onClick={() => router.push("/charts")}
+                  onClick={() => router.push("/copy-trading")}
                 >
-                  Trading Charts
+                  Copy Trading
                 </Button>
                 <Button 
                   variant="outline" 

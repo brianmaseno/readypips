@@ -3,8 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/components/auth-context';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Home } from 'lucide-react';
+import { Navigation } from '@/components/navigation';
 import LiveChart from '@/components/live-chart';
 import SignalNotifications from '@/components/signal-notifications';
 import AnalysisPanel from '@/components/analysis-panel';
@@ -42,18 +41,14 @@ export default function ChartPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Navigation */}
+      <Navigation />
+      
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Link
-                href="/"
-                className="flex items-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
-              >
-                <Home className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-                <span className="font-medium text-gray-700 dark:text-gray-300">Home</span>
-              </Link>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 Live Trading Chart
               </h1>

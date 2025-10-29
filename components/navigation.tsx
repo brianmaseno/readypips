@@ -19,6 +19,7 @@ import {
   FileText,
   TrendingUp,
   Activity,
+  User,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -53,22 +54,16 @@ export function Navigation() {
       description: "Real-time trading chart",
     },
     {
-      name: "Signals",
-      href: "/signals",
-      icon: TrendingUp,
-      description: "Trading signals & alerts",
-    },
-    {
       name: "Copy Trading",
       href: "/copy-trading",
       icon: Copy,
       description: "Copy expert traders",
     },
     {
-      name: "Charts",
-      href: "/charts",
-      icon: BarChart3,
-      description: "Advanced charts",
+      name: "Profile",
+      href: "/profile",
+      icon: User,
+      description: "Your account profile",
     },
   ];
 

@@ -14,7 +14,7 @@ interface SubscriptionAccessResult {
 
 /**
  * Hook to check if user has access to premium features
- * - New users get 3-day free trial
+ * - New users get 1-day free trial
  * - After trial expires, must subscribe
  * - Paid subscriptions expire based on subscriptionEndDate
  */
