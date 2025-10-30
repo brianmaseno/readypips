@@ -387,7 +387,7 @@ export default function LightweightSignalChart({ pair }: LightweightSignalChartP
   // Fetch signals periodically
   useEffect(() => {
     fetchSignals();
-    const interval = setInterval(fetchSignals, 3000);
+    const interval = setInterval(fetchSignals, 1000);
     return () => clearInterval(interval);
   }, [fetchSignals]);
 
