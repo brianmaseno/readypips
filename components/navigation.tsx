@@ -20,6 +20,7 @@ import {
   TrendingUp,
   Activity,
   User,
+  Signal,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -58,6 +59,12 @@ export function Navigation() {
       href: "/copy-trading",
       icon: Copy,
       description: "Copy expert traders",
+    },
+    {
+      name: "Trading Profile",
+      href: "/signals",
+      icon: Signal,
+      description: "View your trading signals",
     },
     {
       name: "Profile",

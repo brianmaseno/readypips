@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 
 interface LightweightSignalChartProps {
   pair: string;
+  timeframe?: string;
 }
 
 interface TVSignal {
@@ -33,7 +34,7 @@ interface CandleData {
   close: number;
 }
 
-export default function LightweightSignalChart({ pair }: LightweightSignalChartProps) {
+export default function LightweightSignalChart({ pair, timeframe = '15m' }: LightweightSignalChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<any>(null);
@@ -54,42 +55,75 @@ export default function LightweightSignalChart({ pair }: LightweightSignalChartP
       'USDJPY': 'USDTJPY',
       'AUDUSD': 'AUDUSDT',
       'USDCAD': 'USDTCAD',
-      'XAUUSD': 'BTCUSDT', // Using BTC as example, you can use gold futures
+      'USDCHF': 'USDTCHF',
+      'NZDUSD': 'NZDUSDT',
+      'XAUUSD': 'BTCUSDT', // Using BTC as example
+      'BTCUSD': 'BTCUSDT',
+      'ETHUSD': 'ETHUSDT',
     };
     return mapping[pair] || 'BTCUSDT';
   };
 
-  // Fetch candlestick data from Binance
+  // Map timeframe to Binance interval
+  const getBinanceInterval = (tf: string): string => {
+    const mapping: { [key: string]: string } = {
+      '1m': '1m',
+      '5m': '5m',
+      '15m': '15m',
+      '30m': '30m',
+      '1h': '1h',
+      '4h': '4h',
+      '1D': '1d',
+      '1W': '1w',
+      '1M': '1M',
+    };
+    return mapping[tf] || '15m';
+  };
+
+  // Fetch candlestick data from Binance via our backend API
   const fetchCandleData = useCallback(async () => {
     try {
       const symbol = getBinanceSymbol(pair);
-      console.log('Fetching candle data for:', symbol);
+      const interval = getBinanceInterval(timeframe);
+      console.log('Fetching candle data for:', symbol, 'interval:', interval);
+      
+      // Use our backend API to avoid CORS issues
       const response = await fetch(
-        `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=15m&limit=100`
+        `/api/market-data/binance?symbol=${symbol}&interval=${interval}&limit=100`
       );
       
       if (!response.ok) {
-        console.error('Binance API error:', response.status, response.statusText);
-        throw new Error('Failed to fetch candle data');
+        console.error('Market data API error:', response.status, response.statusText);
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Error details:', errorData);
+        throw new Error(errorData.error || 'Failed to fetch candle data');
       }
       
       const data = await response.json();
-      console.log('Received candle data:', data.length, 'candles');
-      const candles: CandleData[] = data.map((d: any) => ({
-        time: Math.floor(d[0] / 1000) as Time,
-        open: parseFloat(d[1]),
-        high: parseFloat(d[2]),
-        low: parseFloat(d[3]),
-        close: parseFloat(d[4]),
+      
+      if (!data.success || !data.candles) {
+        console.error('Invalid data format:', data);
+        return [];
+      }
+      
+      console.log('Received candle data:', data.candles.length, 'candles');
+      
+      const candles: CandleData[] = data.candles.map((d: any) => ({
+        time: d.time as Time,
+        open: d.open,
+        high: d.high,
+        low: d.low,
+        close: d.close,
       }));
       
       console.log('Processed candles:', candles.length);
       return candles;
     } catch (error) {
       console.error('Error fetching candle data:', error);
+      // Return empty array on error so chart doesn't crash
       return [];
     }
-  }, [pair]);
+  }, [pair, timeframe]);
 
   // Fetch signals from API
   const fetchSignals = useCallback(async () => {
