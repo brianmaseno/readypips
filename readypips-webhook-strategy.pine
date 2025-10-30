@@ -1,0 +1,234 @@
+//@version=5
+strategy(title='Readypips.com Webhook Strategy v1.0', overlay=true, pyramiding=0, initial_capital=100000, currency=currency.USD)
+
+// ===========================
+// USER INPUTS
+// ===========================
+useHA = input(false, title='Use Heikken Ashi Candles')
+useAltTF = input(true, title='Use Alt Timeframe')
+tf = input('60', title='Alt Timeframe')
+showPatterns = input(true, title='Show Patterns')
+showFib0000 = input(title='Display Fibonacci 0.000:', defval=true)
+showFib0236 = input(title='Display Fibonacci 0.236:', defval=true)
+showFib0382 = input(title='Display Fibonacci 0.382:', defval=true)
+showFib0500 = input(title='Display Fibonacci 0.500:', defval=true)
+showFib0618 = input(title='Display Fibonacci 0.618:', defval=true)
+showFib0764 = input(title='Display Fibonacci 0.764:', defval=true)
+showFib1000 = input(title='Display Fibonacci 1.000:', defval=true)
+
+// Webhook Settings
+webhookUrl = input.string(title='Webhook URL (for documentation)', defval='https://yourdomain.com/api/webhook/tradingview')
+enableWebhook = input.bool(title='Enable Webhook Alerts', defval=true)
+
+// ===========================
+// ZIGZAG CALCULATION
+// ===========================
+zigzag() =>
+    _isUp = close >= open
+    _isDown = close <= open
+    _direction = 0
+    _direction := _isUp[1] and _isDown ? -1 : _isDown[1] and _isUp ? 1 : nz(_direction[1])
+    _zigzag = _isUp[1] and _isDown and _direction[1] != -1 ? high[1] : _isDown[1] and _isUp and _direction[1] != 1 ? low[1] : na
+    _zigzag
+
+_ticker = syminfo.tickerid
+sz = useAltTF ? ta.change(time(tf)) != 0 ? request.security(_ticker, tf, zigzag(), lookahead=barmerge.lookahead_on) : na : zigzag()
+
+plot(sz, title='zigzag', color=color.new(color.black, 0), linewidth=2)
+
+// ===========================
+// PATTERN RECOGNITION
+// ===========================
+x = ta.valuewhen(sz, sz, 4)
+a = ta.valuewhen(sz, sz, 3)
+b = ta.valuewhen(sz, sz, 2)
+c = ta.valuewhen(sz, sz, 1)
+d = ta.valuewhen(sz, sz, 0)
+
+xab = math.abs(b - a) / math.abs(x - a)
+xad = math.abs(a - d) / math.abs(x - a)
+abc = math.abs(b - c) / math.abs(a - b)
+bcd = math.abs(c - d) / math.abs(b - c)
+
+// Pattern Recognition Functions
+isBat(_mode) =>
+    _xab = xab >= 0.382 and xab <= 0.5
+    _abc = abc >= 0.382 and abc <= 0.886
+    _bcd = bcd >= 1.618 and bcd <= 2.618
+    _xad = xad <= 0.618 and xad <= 1.000
+    _xab and _abc and _bcd and _xad and (_mode == 1 ? d < c : d > c)
+
+isAltBat(_mode) =>
+    _xab = xab <= 0.382
+    _abc = abc >= 0.382 and abc <= 0.886
+    _bcd = bcd >= 2.0 and bcd <= 3.618
+    _xad = xad <= 1.13
+    _xab and _abc and _bcd and _xad and (_mode == 1 ? d < c : d > c)
+
+isButterfly(_mode) =>
+    _xab = xab <= 0.786
+    _abc = abc >= 0.382 and abc <= 0.886
+    _bcd = bcd >= 1.618 and bcd <= 2.618
+    _xad = xad >= 1.27 and xad <= 1.618
+    _xab and _abc and _bcd and _xad and (_mode == 1 ? d < c : d > c)
+
+isGartley(_mode) =>
+    _xab = xab >= 0.5 and xab <= 0.618
+    _abc = abc >= 0.382 and abc <= 0.886
+    _bcd = bcd >= 1.13 and bcd <= 2.618
+    _xad = xad >= 0.75 and xad <= 0.875
+    _xab and _abc and _bcd and _xad and (_mode == 1 ? d < c : d > c)
+
+isCrab(_mode) =>
+    _xab = xab >= 0.500 and xab <= 0.875
+    _abc = abc >= 0.382 and abc <= 0.886
+    _bcd = bcd >= 2.000 and bcd <= 5.000
+    _xad = xad >= 1.382 and xad <= 5.000
+    _xab and _abc and _bcd and _xad and (_mode == 1 ? d < c : d > c)
+
+isABCD(_mode) =>
+    _abc = abc >= 0.382 and abc <= 0.886
+    _bcd = bcd >= 1.13 and bcd <= 2.618
+    _abc and _bcd and (_mode == 1 ? d < c : d > c)
+
+// ===========================
+// FIBONACCI CALCULATIONS
+// ===========================
+fib_range = math.abs(d - c)
+f_last_fib(_rate) =>
+    d > c ? d - fib_range * _rate : d + fib_range * _rate
+
+trade_size = input(title='Trade size:', defval=10000.00)
+ew_rate = input(title='Fib. Rate to use for Entry Window:', defval=0.382)
+tp_rate = input(title='Fib. Rate to use for TP:', defval=0.618)
+sl_rate = input(title='Fib. Rate to use for SL:', defval=-0.618)
+
+// ===========================
+// SIGNAL DETECTION
+// ===========================
+buy_patterns_00 = isABCD(1) or isBat(1) or isAltBat(1) or isButterfly(1) or isGartley(1) or isCrab(1)
+sel_patterns_00 = isABCD(-1) or isBat(-1) or isAltBat(-1) or isButterfly(-1) or isGartley(-1) or isCrab(-1)
+
+buy_entry = buy_patterns_00 and close <= f_last_fib(ew_rate)
+buy_close = high >= f_last_fib(tp_rate) or low <= f_last_fib(sl_rate)
+
+sel_entry = sel_patterns_00 and close >= f_last_fib(ew_rate)
+sel_close = low <= f_last_fib(tp_rate) or high >= f_last_fib(sl_rate)
+
+// ===========================
+// TRADE TRACKING
+// ===========================
+var int buy_bar_index = na
+var int sell_bar_index = na
+var float buy_tp_level = na
+var float buy_sl_level = na
+var float sell_tp_level = na
+var float sell_sl_level = na
+var bool in_buy_trade = false
+var bool in_sell_trade = false
+
+buy_signal = buy_entry and not in_buy_trade
+sell_signal = sel_entry and not in_sell_trade
+buy_close_signal = buy_close and in_buy_trade
+sell_close_signal = sel_close and in_sell_trade
+
+// ===========================
+// STRATEGY EXECUTION
+// ===========================
+if buy_signal
+    strategy.entry('buy', direction=strategy.long, qty=trade_size, comment='buy')
+    buy_bar_index := bar_index
+    buy_tp_level := f_last_fib(tp_rate)
+    buy_sl_level := f_last_fib(sl_rate)
+    in_buy_trade := true
+
+if buy_close_signal
+    strategy.close('buy')
+    in_buy_trade := false
+
+if sell_signal
+    strategy.entry('sell', direction=strategy.short, qty=trade_size, comment='sell')
+    sell_bar_index := bar_index
+    sell_tp_level := f_last_fib(tp_rate)
+    sell_sl_level := f_last_fib(sl_rate)
+    in_sell_trade := true
+
+if sell_close_signal
+    strategy.close('sell')
+    in_sell_trade := false
+
+// ===========================
+// VISUAL SIGNALS
+// ===========================
+plotshape(buy_signal, title='Buy Signal', location=location.belowbar, color=color.new(color.green, 0), style=shape.triangleup, size=size.normal)
+plotshape(sell_signal, title='Sell Signal', location=location.abovebar, color=color.new(color.red, 0), style=shape.triangledown, size=size.normal)
+plotshape(buy_close_signal, title='Buy Close', location=location.belowbar, color=color.new(color.purple, 0), style=shape.circle, size=size.small)
+plotshape(sell_close_signal, title='Sell Close', location=location.abovebar, color=color.new(color.purple, 0), style=shape.circle, size=size.small)
+
+bgcolor(in_buy_trade ? color.new(color.green, 90) : na, title='Buy Zone')
+bgcolor(in_sell_trade ? color.new(color.red, 90) : na, title='Sell Zone')
+
+// ===========================
+// WEBHOOK ALERT MESSAGES
+// ===========================
+
+// Helper function to format JSON
+formatPrice(price) =>
+    str.tostring(math.round(price * 10000) / 10000)
+
+// Buy Signal Webhook
+buyMessage = '{' + 
+     '"signal": "BUY",' +
+     '"symbol": "' + syminfo.ticker + '",' +
+     '"price": ' + formatPrice(close) + ',' +
+     '"tp": ' + formatPrice(buy_tp_level) + ',' +
+     '"sl": ' + formatPrice(buy_sl_level) + ',' +
+     '"timeframe": "' + timeframe.period + '",' +
+     '"strategy": "Readypips Harmonic Pattern",' +
+     '"time": "' + str.format("{0,date,yyyy-MM-dd'T'HH:mm:ss'Z'}", time) + '"' +
+     '}'
+
+// Sell Signal Webhook
+sellMessage = '{' +
+     '"signal": "SELL",' +
+     '"symbol": "' + syminfo.ticker + '",' +
+     '"price": ' + formatPrice(close) + ',' +
+     '"tp": ' + formatPrice(sell_tp_level) + ',' +
+     '"sl": ' + formatPrice(sell_sl_level) + ',' +
+     '"timeframe": "' + timeframe.period + '",' +
+     '"strategy": "Readypips Harmonic Pattern",' +
+     '"time": "' + str.format("{0,date,yyyy-MM-dd'T'HH:mm:ss'Z'}", time) + '"' +
+     '}'
+
+// Close Buy Webhook
+closeBuyMessage = '{' +
+     '"signal": "CLOSE_BUY",' +
+     '"symbol": "' + syminfo.ticker + '",' +
+     '"price": ' + formatPrice(close) + ',' +
+     '"timeframe": "' + timeframe.period + '",' +
+     '"time": "' + str.format("{0,date,yyyy-MM-dd'T'HH:mm:ss'Z'}", time) + '"' +
+     '}'
+
+// Close Sell Webhook
+closeSellMessage = '{' +
+     '"signal": "CLOSE_SELL",' +
+     '"symbol": "' + syminfo.ticker + '",' +
+     '"price": ' + formatPrice(close) + ',' +
+     '"timeframe": "' + timeframe.period + '",' +
+     '"time": "' + str.format("{0,date,yyyy-MM-dd'T'HH:mm:ss'Z'}", time) + '"' +
+     '}'
+
+// ===========================
+// TRIGGER ALERTS
+// ===========================
+if (buy_signal and enableWebhook)
+    alert(buyMessage, alert.freq_once_per_bar_close)
+
+if (sell_signal and enableWebhook)
+    alert(sellMessage, alert.freq_once_per_bar_close)
+
+if (buy_close_signal and enableWebhook)
+    alert(closeBuyMessage, alert.freq_once_per_bar_close)
+
+if (sell_close_signal and enableWebhook)
+    alert(closeSellMessage, alert.freq_once_per_bar_close)

@@ -47,7 +47,7 @@ export default function SignalNotifications({ pair }: SignalNotificationsProps) 
 
   const checkForNewSignals = async () => {
     try {
-      const response = await fetch(`/api/signals?pair=${pair}&limit=1`);
+      const response = await fetch(`/api/signals/tradingview?pair=${pair}&limit=1&status=active`);
       if (response.ok) {
         const data = await response.json();
         const latestSignal = data.signals?.[0];
