@@ -4,7 +4,8 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { createChart, IChartApi, ISeriesApi, Time } from 'lightweight-charts';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, X, Volume2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, X, Volume2, Bell } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface LightweightSignalChartProps {
   pair: string;
@@ -38,12 +39,12 @@ export default function LightweightSignalChart({ pair }: LightweightSignalChartP
   const candleSeriesRef = useRef<any>(null);
   const tpLineRef = useRef<any>(null);
   const slLineRef = useRef<any>(null);
-  
   const [signals, setSignals] = useState<TVSignal[]>([]);
   const [activeSignal, setActiveSignal] = useState<TVSignal | null>(null);
   const [isLive, setIsLive] = useState(true);
   const [loading, setLoading] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const lastSignalIdRef = useRef<string | null>(null);
 
   // Map pair to Binance symbol
   const getBinanceSymbol = (pair: string): string => {
@@ -98,22 +99,25 @@ export default function LightweightSignalChart({ pair }: LightweightSignalChartP
         const data = await response.json();
         const newSignals = data.signals || [];
         
-        // Check if there are new signals
-        if (JSON.stringify(newSignals) !== JSON.stringify(signals)) {
-          // Play alert sound if new signal arrived
-          if (newSignals.length > signals.length && signals.length > 0) {
+        // Check for new signal and show notification
+        if (newSignals.length > 0) {
+          const latestSignal = newSignals[0];
+          if (lastSignalIdRef.current && lastSignalIdRef.current !== latestSignal._id) {
+            // New signal detected
             playAlert();
+            showSignalNotification(latestSignal);
           }
-          
-          setSignals(newSignals);
-          
-          // Set active signal
-          const activeSignals = newSignals.filter((s: TVSignal) => s.status === 'active');
-          if (activeSignals && activeSignals.length > 0) {
-            setActiveSignal(activeSignals[0]);
-          } else {
-            setActiveSignal(null);
-          }
+          lastSignalIdRef.current = latestSignal._id;
+        }
+        
+        setSignals(newSignals);
+        
+        // Set active signal
+        const activeSignals = newSignals.filter((s: TVSignal) => s.status === 'active');
+        if (activeSignals && activeSignals.length > 0) {
+          setActiveSignal(activeSignals[0]);
+        } else {
+          setActiveSignal(null);
         }
         
         setIsLive(true);
@@ -122,12 +126,64 @@ export default function LightweightSignalChart({ pair }: LightweightSignalChartP
       console.error('Error fetching signals:', error);
       setIsLive(false);
     }
-  }, [pair, signals]);
+  }, [pair]);
 
   // Play alert sound
   const playAlert = () => {
     if (audioRef.current) {
       audioRef.current.play().catch(err => console.log('Audio play failed:', err));
+    }
+  };
+
+  // Show popup notification for new signal
+  const showSignalNotification = (signal: TVSignal) => {
+    const signalType = signal.signal;
+    const isBuy = signalType === 'BUY';
+    const isSell = signalType === 'SELL';
+    const isClose = signalType.includes('CLOSE');
+
+    if (isBuy) {
+      toast.success(
+        <div className="flex items-center gap-3">
+          <div className="bg-green-500 p-2 rounded-full">
+            <TrendingUp className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <p className="font-bold text-green-600">🔔 NEW BUY SIGNAL</p>
+            <p className="text-sm">Entry: {signal.entry} | TP: {signal.tp} | SL: {signal.sl}</p>
+            <p className="text-xs text-gray-500">{signal.pair} - {signal.timeframe}</p>
+          </div>
+        </div>,
+        { duration: 6000 }
+      );
+    } else if (isSell) {
+      toast.error(
+        <div className="flex items-center gap-3">
+          <div className="bg-red-500 p-2 rounded-full">
+            <TrendingDown className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <p className="font-bold text-red-600">🔔 NEW SELL SIGNAL</p>
+            <p className="text-sm">Entry: {signal.entry} | TP: {signal.tp} | SL: {signal.sl}</p>
+            <p className="text-xs text-gray-500">{signal.pair} - {signal.timeframe}</p>
+          </div>
+        </div>,
+        { duration: 6000 }
+      );
+    } else if (isClose) {
+      toast.info(
+        <div className="flex items-center gap-3">
+          <div className="bg-purple-500 p-2 rounded-full">
+            <X className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <p className="font-bold text-purple-600">🔔 POSITION CLOSED</p>
+            <p className="text-sm">Close Price: {signal.closePrice || signal.entry}</p>
+            <p className="text-xs text-gray-500">{signal.pair}</p>
+          </div>
+        </div>,
+        { duration: 6000 }
+      );
     }
   };
 
@@ -145,10 +201,10 @@ export default function LightweightSignalChart({ pair }: LightweightSignalChartP
         return {
           time: timestamp,
           position: 'belowBar' as const,
-          color: '#10b981',
+          color: '#22c55e',
           shape: 'arrowUp' as const,
-          text: `BUY @ ${signal.entry}`,
-          size: 1,
+          text: `BUY ${signal.entry}`,
+          size: 2,
         };
       } else if (signal.signal === 'SELL') {
         return {
@@ -156,21 +212,24 @@ export default function LightweightSignalChart({ pair }: LightweightSignalChartP
           position: 'aboveBar' as const,
           color: '#ef4444',
           shape: 'arrowDown' as const,
-          text: `SELL @ ${signal.entry}`,
-          size: 1,
+          text: `SELL ${signal.entry}`,
+          size: 2,
         };
       } else if (signal.signal.includes('CLOSE')) {
         return {
           time: timestamp,
           position: 'inBar' as const,
-          color: '#8b5cf6',
+          color: '#a855f7',
           shape: 'circle' as const,
-          text: `CLOSE @ ${signal.closePrice || signal.entry}`,
+          text: `CLOSE`,
           size: 1,
         };
       }
       return null;
     }).filter(Boolean) as any[];
+
+    // Sort markers by time in ascending order (required by lightweight-charts)
+    markers.sort((a, b) => a.time - b.time);
 
     console.log('Setting', markers.length, 'markers on chart');
     if (markers.length > 0) {
@@ -188,38 +247,88 @@ export default function LightweightSignalChart({ pair }: LightweightSignalChartP
 
     console.log('Initializing chart...');
 
-    // Create chart
+    // Create chart with professional styling
     const chart = createChart(chartContainerRef.current, {
       layout: {
-        background: { color: '#1a1a1a' },
+        background: { color: '#0a0a0a' },
         textColor: '#d1d5db',
       },
       grid: {
-        vertLines: { color: '#2d2d2d' },
-        horzLines: { color: '#2d2d2d' },
+        vertLines: { 
+          color: '#1e293b',
+          style: 1,
+          visible: true,
+        },
+        horzLines: { 
+          color: '#1e293b',
+          style: 1,
+          visible: true,
+        },
       },
       width: chartContainerRef.current.clientWidth,
-      height: 600,
+      height: 650,
+      rightPriceScale: {
+        borderColor: '#334155',
+        borderVisible: true,
+        scaleMargins: {
+          top: 0.1,
+          bottom: 0.2,
+        },
+      },
       timeScale: {
+        borderColor: '#334155',
+        borderVisible: true,
         timeVisible: true,
         secondsVisible: false,
+        rightOffset: 12,
+        barSpacing: 12,
+        fixLeftEdge: false,
+        fixRightEdge: false,
       },
       crosshair: {
         mode: 1,
+        vertLine: {
+          color: '#60a5fa',
+          width: 1,
+          style: 3,
+          labelBackgroundColor: '#3b82f6',
+        },
+        horzLine: {
+          color: '#60a5fa',
+          width: 1,
+          style: 3,
+          labelBackgroundColor: '#3b82f6',
+        },
+      },
+      handleScroll: {
+        mouseWheel: true,
+        pressedMouseMove: true,
+        horzTouchDrag: true,
+        vertTouchDrag: true,
+      },
+      handleScale: {
+        axisPressedMouseMove: true,
+        mouseWheel: true,
+        pinch: true,
       },
     });
 
     console.log('Chart created:', chart);
 
-    // Add candlestick series using v4.x API
+    // Add candlestick series with professional styling
     console.log('Adding candlestick series...');
     const candleSeries = chart.addCandlestickSeries({
-      upColor: '#10b981',
+      upColor: '#22c55e',
       downColor: '#ef4444',
-      borderUpColor: '#10b981',
+      borderUpColor: '#22c55e',
       borderDownColor: '#ef4444',
-      wickUpColor: '#10b981',
+      wickUpColor: '#22c55e',
       wickDownColor: '#ef4444',
+      priceFormat: {
+        type: 'price',
+        precision: 5,
+        minMove: 0.00001,
+      },
     });
 
     console.log('Candlestick series added:', candleSeries);
@@ -263,8 +372,8 @@ export default function LightweightSignalChart({ pair }: LightweightSignalChartP
   // Initialize chart on mount
   useEffect(() => {
     initChart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   // Update chart when pair changes
   useEffect(() => {
     if (chartRef.current) {
@@ -272,6 +381,7 @@ export default function LightweightSignalChart({ pair }: LightweightSignalChartP
       setLoading(true);
       initChart();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pair]);
 
   // Fetch signals periodically
@@ -299,7 +409,7 @@ export default function LightweightSignalChart({ pair }: LightweightSignalChartP
       if (activeSignal.tp) {
         tpLineRef.current = candleSeriesRef.current.createPriceLine({
           price: activeSignal.tp,
-          color: '#10b981',
+          color: '#22c55e',
           lineWidth: 2,
           lineStyle: 2, // Dashed
           axisLabelVisible: true,
@@ -316,6 +426,18 @@ export default function LightweightSignalChart({ pair }: LightweightSignalChartP
           lineStyle: 2, // Dashed
           axisLabelVisible: true,
           title: 'SL',
+        });
+      }
+
+      // Add Entry line
+      if (activeSignal.entry) {
+        candleSeriesRef.current.createPriceLine({
+          price: activeSignal.entry,
+          color: '#3b82f6',
+          lineWidth: 2,
+          lineStyle: 1, // Solid
+          axisLabelVisible: true,
+          title: 'Entry',
         });
       }
     } else {
