@@ -106,7 +106,19 @@ export default function LightweightSignalChart({ pair, timeframe = '15m' }: Ligh
         return [];
       }
       
-      console.log('Received candle data:', data.candles.length, 'candles');
+      // Show notification if using sample data
+      if (data.source === 'sample' && data.note) {
+        console.warn('⚠️ Using sample data:', data.note);
+        // Only show toast once per session
+        if (!sessionStorage.getItem('sample_data_notified')) {
+          toast.info('📊 Using sample chart data. Binance API unavailable in your region.', {
+            duration: 5000,
+          });
+          sessionStorage.setItem('sample_data_notified', 'true');
+        }
+      }
+      
+      console.log('Received candle data:', data.candles.length, 'candles', 'Source:', data.source);
       
       const candles: CandleData[] = data.candles.map((d: any) => ({
         time: d.time as Time,
